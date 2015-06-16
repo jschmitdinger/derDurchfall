@@ -1,0 +1,485 @@
+/* ======================================= DER DURCHFALL ========================================== //
+| INSTITUTO FEDERAL DE SANTA CATARINA - IFSC			FEDERAL INSTITUTE OF SANTA CATARINA			||
+| DISCIPLINA DE PROGRAMACAO C							C PROGRAMMING LANGUAGE						||
+| PROFESSOR FERNANDO PACHECO							PROFESSOR FERNANDO PACHECO					||
+| CAIO PRUJANSKY E JOHANN SCHMITDINGER					CAIO PRUJANSKY AND JOHANN SCHMITDINGER		||
+| ARQUIVO: main.c										FILE: main.c								||
+| VERSAO: v1.0											VERSION: v1.0								||
+| DATA DE ALTERACAO: 02/06/2015							LAST ALTERED DATE: 02/06/2015				||
+// ================================================================================================ */
+
+// LIBRARY INCLUSIONS / INCLUSAO DE BIBLIOTECAS =================================================== //
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+#include "durchfallDefines.h"
+#include "durchfallStructs.h"
+#include "durchfallEngine.h"
+
+int main(void)
+{
+	// LOCAL VARIABLES DECLARATIONS / DECLARACAO DE VARIAVEIS LOCAIS ============================== //
+	// Reading config values from file / Ler valores de configuracao do arquivo ------------------- //
+	graphicSettings settings;
+	if(!loadSettings(&settings))
+		return AL_FILE_ERROR;
+
+	gameStatus game;
+	game.quit = false;
+	game.stage = STAGE_INTRO_SCREEN;
+
+	timeControl menuControl;
+	menuControl.flag = false;
+	menuControl.time = 0;
+
+	gameMap map;
+	initMap(&map, "maps/map01.txt");
+
+	avatar player;
+	initPlayer(&player, TYPE_NORMAL, map.width, map.height);
+
+	mapView view;
+	view.totalWidth = map.width;
+	view.totalHeight = map.height;
+	view.rangeX = settings.displayX;
+	view.rangeY = settings.displayY;
+	view.coordX = (view.totalWidth/2) - (view.rangeX/2);
+	view.coordY = (view.totalHeight/2) - (view.rangeY/2);
+
+	square limits;
+	limits.coordX1 = 0;
+	limits.coordY1 = 0;
+	limits.coordX2 = map.width;
+	limits.coordY2 = map.height;
+	limits.flagA = 1;
+	limits.flagB = 1;
+	limits.flagC = 1;
+	limits.flagD = 1;
+
+	triangle tt;
+	tt.coordX1 = map.width/2-400+1000;
+	tt.coordY1 = map.height/2 + 100;
+	tt.coordX2 = tt.coordX1 - 100;
+	tt.coordY2 = tt.coordY1 + 100;
+	tt.coordX3 = tt.coordX1 + 100;
+	tt.coordY3 = tt.coordY1 + 100;
+
+	square tb;
+	tb.coordX1 = map.width/2+400;
+	tb.coordX2 = tb.coordX1 + 100;
+	tb.coordY1 = map.height/2 - 100;
+	tb.coordY2 = tb.coordY1 + 200;
+	tb.flagA = 1;
+	tb.flagB = 1;
+	tb.flagC = 1;
+	tb.flagD = 1;
+	player.coordX = tb.coordX1 - 100;
+	player.coordY = tb.coordY2 + 100;
+
+	char key[TOTAL_KEY] = {false};
+	int i, j;
+
+	// INITIALIZING EVERYTHING / INICIALISANDO TUDO =============================================== //
+	// Initializing allegro / Inicializando allegro ----------------------------------------------- //
+    if (!al_init())
+        return AL_INIT_ERROR;
+
+    // Initializing display / Inicializando display ----------------------------------------------- //
+    ALLEGRO_DISPLAY *display = NULL;
+    display = al_create_display(settings.displayX, settings.displayY);
+    if(!display)
+		return AL_DISPLAY_ERROR;
+
+    // Initializing timer / Inicializando timer --------------------------------------------------- //
+    ALLEGRO_TIMER *timer = NULL;
+    timer = al_create_timer(1.0 / GAME_SPEED);
+    if(!timer)
+        return AL_TIMER_ERROR;
+
+    // Initializing allegro's primitive addon / Inicializando addon de primitivos do allegro ------ //
+    if(!al_init_primitives_addon())
+        return AL_PRIMITIVE_ERROR;
+
+    // Initializing the keyboard / Inicializando o teclado ---------------------------------------- //
+	if(!al_install_keyboard())
+        return AL_KEYBOARD_ERROR;
+
+	// Initializing text fonts / Inicializando fontes para texto ---------------------------------- //
+    al_init_font_addon();
+    al_init_ttf_addon();
+    ALLEGRO_FONT *font[FONT_NAME][FONT_SIZES];
+    font[FONT_ARIAL][FONT_16] = al_load_font("fonts/arial.ttf", 16, 0);
+    font[FONT_ARIAL][FONT_24] = al_load_font("fonts/arial.ttf", 24, 0);
+    for(i=0; i<FONT_NAME; i++){
+        for(j=0; j<FONT_SIZES; j++){
+            if(font[i][j] == false)
+                return AL_FONT_ERROR;
+        }
+    }
+
+    // Initializing the eventQueue / Inicializando a fila de eventos ----------------------------- //
+    ALLEGRO_EVENT_QUEUE *eventQueue = NULL;
+    eventQueue = al_create_event_queue();
+    if(!eventQueue)
+        return AL_EVENT_QUEUE_ERROR;
+    al_register_event_source(eventQueue, al_get_display_event_source(display));
+    al_register_event_source(eventQueue, al_get_timer_event_source(timer));
+    al_register_event_source(eventQueue, al_get_keyboard_event_source());
+
+    // Initializing bitviews / Inicializando bitmaps ---------------------------------------------- //
+    if(!al_init_image_addon())
+    	return AL_IMAGE_ERROR;
+
+    // GAME LOOP / LOOP DO JOGO ================================================================== //
+    al_start_timer(timer);
+    while(!game.quit){
+        ALLEGRO_EVENT ev;
+        al_wait_for_event(eventQueue, &ev);
+
+        if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        	game.quit = true;
+
+        if(ev.type == ALLEGRO_EVENT_KEY_DOWN){
+            switch(ev.keyboard.keycode){
+                case ALLEGRO_KEY_UP:
+                    key[KEY_UP] = true;
+                    break;
+                case ALLEGRO_KEY_DOWN:
+                    key[KEY_DOWN] = true;
+                    break;
+                case ALLEGRO_KEY_LEFT:
+                    key[KEY_LEFT] = true;
+                    break;
+                case ALLEGRO_KEY_RIGHT:
+                    key[KEY_RIGHT] = true;
+                    break;
+                case ALLEGRO_KEY_A:
+                    key[KEY_A] = true;
+                    break;
+                case ALLEGRO_KEY_B:
+                    key[KEY_B] = true;
+                    break;
+                case ALLEGRO_KEY_C:
+                    key[KEY_C] = true;
+                    break;
+                case ALLEGRO_KEY_D:
+                    key[KEY_D] = true;
+                    break;
+                case ALLEGRO_KEY_E:
+                    key[KEY_E] = true;
+                    break;
+                case ALLEGRO_KEY_F:
+                    key[KEY_F] = true;
+                    break;
+                case ALLEGRO_KEY_G:
+                    key[KEY_G] = true;
+                    break;
+                case ALLEGRO_KEY_H:
+                    key[KEY_H] = true;
+                    break;
+                case ALLEGRO_KEY_I:
+                    key[KEY_I] = true;
+                    break;
+                case ALLEGRO_KEY_J:
+                    key[KEY_J] = true;
+                    break;
+                case ALLEGRO_KEY_K:
+                    key[KEY_K] = true;
+                    break;
+                case ALLEGRO_KEY_L:
+                    key[KEY_L] = true;
+                    break;
+                case ALLEGRO_KEY_M:
+                    key[KEY_M] = true;
+                    break;
+                case ALLEGRO_KEY_N:
+                    key[KEY_N] = true;
+                    break;
+                case ALLEGRO_KEY_O:
+                    key[KEY_O] = true;
+                    break;
+                case ALLEGRO_KEY_P:
+                    key[KEY_P] = true;
+                    break;
+                case ALLEGRO_KEY_Q:
+                    key[KEY_Q] = true;
+                    break;
+                case ALLEGRO_KEY_R:
+                    key[KEY_R] = true;
+                    break;
+                case ALLEGRO_KEY_S:
+                    key[KEY_S] = true;
+                    break;
+                case ALLEGRO_KEY_T:
+                    key[KEY_T] = true;
+                    break;
+                case ALLEGRO_KEY_U:
+                    key[KEY_U] = true;
+                    break;
+                case ALLEGRO_KEY_V:
+                    key[KEY_V] = true;
+                    break;
+                case ALLEGRO_KEY_W:
+                    key[KEY_W] = true;
+                    break;
+                case ALLEGRO_KEY_X:
+                    key[KEY_X] = true;
+                    break;
+                case ALLEGRO_KEY_Y:
+                    key[KEY_Y] = true;
+                    break;
+                case ALLEGRO_KEY_Z:
+                    key[KEY_Z] = true;
+                    break;
+                case ALLEGRO_KEY_ESCAPE:
+                    key[KEY_ESC] = true;
+                    break;
+                case ALLEGRO_KEY_ENTER:
+                    key[KEY_ENTER] = true;
+                    break;
+                case ALLEGRO_KEY_LSHIFT:
+                    key[KEY_SHIFT] = true;
+                    break;
+                case ALLEGRO_KEY_RSHIFT:
+                    key[KEY_SHIFT] = true;
+                    break;
+                case ALLEGRO_KEY_BACKSPACE:
+                	key[KEY_BACKSPACE] = true;
+                	break;
+            }
+        }
+        if(ev.type == ALLEGRO_EVENT_KEY_UP){
+            switch(ev.keyboard.keycode){
+                case ALLEGRO_KEY_UP:
+                    key[KEY_UP] = false;
+                    break;
+                case ALLEGRO_KEY_DOWN:
+                    key[KEY_DOWN] = false;
+                    break;
+                case ALLEGRO_KEY_LEFT:
+                    key[KEY_LEFT] = false;
+                    break;
+                case ALLEGRO_KEY_RIGHT:
+                    key[KEY_RIGHT] = false;
+                    break;
+                case ALLEGRO_KEY_A:
+                    key[KEY_A] = false;
+                    break;
+                case ALLEGRO_KEY_B:
+                    key[KEY_B] = false;
+                    break;
+                case ALLEGRO_KEY_C:
+                    key[KEY_C] = false;
+                    break;
+                case ALLEGRO_KEY_D:
+                    key[KEY_D] = false;
+                    break;
+                case ALLEGRO_KEY_E:
+                    key[KEY_E] = false;
+                    break;
+                case ALLEGRO_KEY_F:
+                    key[KEY_F] = false;
+                    break;
+                case ALLEGRO_KEY_G:
+                    key[KEY_G] = false;
+                    break;
+                case ALLEGRO_KEY_H:
+                    key[KEY_H] = false;
+                    break;
+                case ALLEGRO_KEY_I:
+                    key[KEY_I] = false;
+                    break;
+                case ALLEGRO_KEY_J:
+                    key[KEY_J] = false;
+                    break;
+                case ALLEGRO_KEY_K:
+                    key[KEY_K] = false;
+                    break;
+                case ALLEGRO_KEY_L:
+                    key[KEY_L] = false;
+                    break;
+                case ALLEGRO_KEY_M:
+                    key[KEY_M] = false;
+                    break;
+                case ALLEGRO_KEY_N:
+                    key[KEY_N] = false;
+                    break;
+                case ALLEGRO_KEY_O:
+                    key[KEY_O] = false;
+                    break;
+                case ALLEGRO_KEY_P:
+                    key[KEY_P] = false;
+                    break;
+                case ALLEGRO_KEY_Q:
+                    key[KEY_Q] = false;
+                    break;
+                case ALLEGRO_KEY_R:
+                    key[KEY_R] = false;
+                    break;
+                case ALLEGRO_KEY_S:
+                    key[KEY_S] = false;
+                    break;
+                case ALLEGRO_KEY_T:
+                    key[KEY_T] = false;
+                    break;
+                case ALLEGRO_KEY_U:
+                    key[KEY_U] = false;
+                    break;
+                case ALLEGRO_KEY_V:
+                    key[KEY_V] = false;
+                    break;
+                case ALLEGRO_KEY_W:
+                    key[KEY_W] = false;
+                    break;
+                case ALLEGRO_KEY_X:
+                    key[KEY_X] = false;
+                    break;
+                case ALLEGRO_KEY_Y:
+                    key[KEY_Y] = false;
+                    break;
+                case ALLEGRO_KEY_Z:
+                    key[KEY_Z] = false;
+                    break;
+                case ALLEGRO_KEY_ESCAPE:
+                    key[KEY_ESC] = false;
+                    break;
+                case ALLEGRO_KEY_ENTER:
+                    key[KEY_ENTER] = false;
+                    break;
+                case ALLEGRO_KEY_LSHIFT:
+                    key[KEY_SHIFT] = false;
+                    break;
+                case ALLEGRO_KEY_RSHIFT:
+                    key[KEY_SHIFT] = false;
+                    break;
+                case ALLEGRO_KEY_BACKSPACE:
+                	key[KEY_BACKSPACE] = false;
+                	break;
+            }
+        }
+
+        // GAME LOGIC / LOGICA DO JOGO ----------------------------------------------------------- //
+        if(ev.type == ALLEGRO_EVENT_TIMER){
+        	fpsControl(&settings);
+            if(key[KEY_ESC]) game.quit=true;
+            switch(game.stage){
+                case STAGE_INTRO_SCREEN:
+                	if(key[KEY_ENTER] && menuControl.flag){
+                		setTimer(&menuControl.time, 20);
+                		game.stage = STAGE_MAIN_MENU;
+                	}
+                    break;
+                case STAGE_MAIN_MENU:
+                	if(key[KEY_ENTER] && menuControl.flag){
+                		setTimer(&menuControl.time, 20);
+                		game.stage = STAGE_IN_GAME;
+                	}
+                    break;
+                case STAGE_IN_GAME:
+                	if(key[KEY_P]){
+                		setTimer(&menuControl.time, 20);
+                		game.stage = STAGE_PAUSE_MENU;
+                	}
+                	if(key[KEY_W])
+                		phAddAc(&player.acY, player.power, -1, player.weight, 1, NORMAL_SPEED);
+                	if(key[KEY_S])
+                		phAddAc(&player.acY, player.power, 1, player.weight, 1, NORMAL_SPEED);
+                	if(key[KEY_A])
+                		phAddAc(&player.acX, player.power, -1, player.weight, 1, NORMAL_SPEED);
+                	if(key[KEY_D])
+                		phAddAc(&player.acX, player.power, 1, player.weight, 1, NORMAL_SPEED);
+                	if((!key[KEY_W]) && (!key[KEY_S]))
+                		phNormalize(&player.acY, player.power/2, player.weight);
+                	if((!key[KEY_A]) && (!key[KEY_D]))
+                		phNormalize(&player.acX, player.power/2, player.weight);
+
+                	phColideBallRecIn(&player, &limits);
+                	//phColideBallLine(&player, tb.coordX1, tb.coordY1, tb.coordX1, tb.coordY2);
+                	phColideBallLine(&player, tt.coordX1, tt.coordY1, tt.coordX2, tt.coordY2);
+                	//phColideBallRecIn(&player, &tb);
+                	phMoveObject(&player);
+                	moveViewPoint(&player, &view);
+
+                    break;
+                case STAGE_PAUSE_MENU:
+                	if(key[KEY_BACKSPACE]){
+                		setTimer(&menuControl.time, 20);
+                		game.stage = STAGE_IN_GAME;
+                	}
+                	break;
+                default:
+                    return AL_STATE_ERROR;
+                    break;
+            }
+
+            checkTimer(&menuControl);
+        }
+
+        // GAME ART / ARTE DO JOGO --------------------------------------------------------------- //
+        if(al_is_event_queue_empty(eventQueue) && (settings.fpsCount == 0)){
+            al_clear_to_color(al_map_rgb(0,0,0));
+            switch(game.stage){
+                case STAGE_INTRO_SCREEN:
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,
+                			settings.displayY/2, ALLEGRO_ALIGN_CENTRE, "INTRO SCREEN");
+                    break;
+                case STAGE_MAIN_MENU:
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,
+                			settings.displayY/2, ALLEGRO_ALIGN_CENTRE, "MAIN MENU");
+                    break;
+                case STAGE_IN_GAME:
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,
+                			settings.displayY*0.1, ALLEGRO_ALIGN_CENTRE, "IN GAME");
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.1,
+                			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "coordX: %.2f", player.coordX - view.coordX);
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.1,
+                			settings.displayY*0.95, ALLEGRO_ALIGN_CENTRE, "coordX: %.2f", player.coordX);
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.2,
+                			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "coordY: %.2f", player.coordY - view.coordY);
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.2,
+                			settings.displayY*0.95, ALLEGRO_ALIGN_CENTRE, "coordY: %.2f", player.coordY);
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.3,
+                			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "acX: %.2f", player.acX);
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.3,
+                			settings.displayY*0.95, ALLEGRO_ALIGN_CENTRE, "acY: %.2f", player.acY);
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.4,
+                			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "angle: %.2f", player.dAngle);
+
+                	al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
+                	al_draw_triangle(tt.coordX1 - view.coordX, tt.coordY1 - view.coordY ,tt.coordX2 - view.coordX, tt.coordY2 - view.coordY,
+                			tt.coordX3 - view.coordX, tt.coordY3 - view.coordY, al_map_rgb(255,255,255), 5);
+                	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
+                			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
+                	al_draw_rectangle(tb.coordX1 - view.coordX, tb.coordY1 - view.coordY,
+                			tb.coordX2 - view.coordX, tb.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
+                    break;
+                case STAGE_PAUSE_MENU:
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,
+                			settings.displayY/2, ALLEGRO_ALIGN_CENTRE, "PAUSED");
+                	break;
+                default:
+                    return AL_STATE_ERROR;
+                    break;
+            }
+            al_flip_display();
+        }
+    }
+
+    // ALLEGRO DEINIT / DESTRUICAO DOS COMPONENTES =============================================== //
+    al_destroy_display(display);
+    al_destroy_event_queue(eventQueue);
+    al_destroy_timer(timer);
+    for(i=0; i<FONT_NAME; i++){
+        for(j=0; j<FONT_SIZES; j++){
+            al_destroy_font(font[i][j]);
+        }
+    }
+
+    return SABABA;
+}
