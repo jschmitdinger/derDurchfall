@@ -62,6 +62,11 @@ int main(void)
 	limits.flagC = 1;
 	limits.flagD = 1;
 
+float linex1 = view.totalWidth/2 - 100;
+float linex2 = view.totalWidth/2 + 100;
+float liney1 = view.totalHeight/2 + 400;
+float liney2 = view.totalHeight/2 + 200;
+
 	char key[TOTAL_KEY] = {false};
 	int i, j;
 
@@ -380,7 +385,10 @@ int main(void)
                 		phNormalize(&player.acX, player.power/2, player.weight);
 
                 	phColideBallRec(&player, &limits);
+                	phColideBallLine(&player, linex1, liney1, linex2, liney2);
+
                 	phMoveObject(&player);
+
                 	moveViewPoint(&player, &view);
 
                     break;
@@ -429,6 +437,7 @@ int main(void)
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "angle: %.2f", player.dAngle);
 
                 	al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
+                	al_draw_line(linex1 - view.coordX, liney1 - view.coordY, linex2 - view.coordX, liney2 - view.coordY, al_map_rgb(255,255,255), 5);
                 	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
                 			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
                     break;
