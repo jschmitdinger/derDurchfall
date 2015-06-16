@@ -62,26 +62,6 @@ int main(void)
 	limits.flagC = 1;
 	limits.flagD = 1;
 
-	triangle tt;
-	tt.coordX1 = map.width/2-400+1000;
-	tt.coordY1 = map.height/2 + 100;
-	tt.coordX2 = tt.coordX1 - 100;
-	tt.coordY2 = tt.coordY1 + 100;
-	tt.coordX3 = tt.coordX1 + 100;
-	tt.coordY3 = tt.coordY1 + 100;
-
-	square tb;
-	tb.coordX1 = map.width/2+400;
-	tb.coordX2 = tb.coordX1 + 100;
-	tb.coordY1 = map.height/2 - 100;
-	tb.coordY2 = tb.coordY1 + 200;
-	tb.flagA = 1;
-	tb.flagB = 1;
-	tb.flagC = 1;
-	tb.flagD = 1;
-	player.coordX = tb.coordX1 - 100;
-	player.coordY = tb.coordY2 + 100;
-
 	char key[TOTAL_KEY] = {false};
 	int i, j;
 
@@ -399,10 +379,7 @@ int main(void)
                 	if((!key[KEY_A]) && (!key[KEY_D]))
                 		phNormalize(&player.acX, player.power/2, player.weight);
 
-                	phColideBallRecIn(&player, &limits);
-                	//phColideBallLine(&player, tb.coordX1, tb.coordY1, tb.coordX1, tb.coordY2);
-                	phColideBallLine(&player, tt.coordX1, tt.coordY1, tt.coordX2, tt.coordY2);
-                	//phColideBallRecIn(&player, &tb);
+                	phColideBallRec(&player, &limits);
                 	phMoveObject(&player);
                 	moveViewPoint(&player, &view);
 
@@ -452,12 +429,8 @@ int main(void)
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "angle: %.2f", player.dAngle);
 
                 	al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
-                	al_draw_triangle(tt.coordX1 - view.coordX, tt.coordY1 - view.coordY ,tt.coordX2 - view.coordX, tt.coordY2 - view.coordY,
-                			tt.coordX3 - view.coordX, tt.coordY3 - view.coordY, al_map_rgb(255,255,255), 5);
                 	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
                 			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
-                	al_draw_rectangle(tb.coordX1 - view.coordX, tb.coordY1 - view.coordY,
-                			tb.coordX2 - view.coordX, tb.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
                     break;
                 case STAGE_PAUSE_MENU:
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,

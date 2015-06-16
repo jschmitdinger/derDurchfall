@@ -27,7 +27,6 @@ void phAddAc(float *ac, float power, char dir, float mass, float trig, float lim
 void phMoveObject(avatar *object);
 void phNormalize(float *ac, float power, float mass);
 void phColideBallRec(avatar *object, square *block);
-void phColideBallRecIn(avatar *object, square *block);
 void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, float lineY1);
 
 // MAP FUNCTIONS ================================================================================== //
