@@ -28,6 +28,7 @@ void phMoveObject(avatar *object);
 void phNormalize(float *ac, float power, float mass);
 void phColideBallRec(avatar *object, square *block);
 void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, float lineY1);
+void phColide2Ball(avatar *object1, avatar *object2);
 
 // MAP FUNCTIONS ================================================================================== //
 void initMap(gameMap *map, char filePath[]);

@@ -259,6 +259,61 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 
 	return;
 }
+void phColide2Ball(avatar *object1, avatar *object2)
+{
+    float distance;
+    float auxX;
+    float auxY;
+
+    distance = sqrt(pow((object1->coordX - object2->coordX),2)+(pow((object1->coordY - object2->coordY),2)));
+
+    if(distance <= (object1->radius + object2->radius))
+    {
+        if(distance < (object1->radius + object2->radius))
+        {
+            if(object1->coordX < object2->coordX)
+            {
+                object1->coordX = object1->coordX - (object1->radius + object2->radius - distance)/2;
+                object2->coordX = object2->coordX + (object1->radius + object2->radius - distance)/2;
+            }
+
+            if(object1->coordX >= object2->coordX)
+            {
+                object1->coordX = object1->coordX + (object1->radius + object1->radius - distance)/2;
+                object2->coordX = object2->coordX - (object1->radius + object2->radius - distance)/2;
+            }
+            if(object1->coordY < object2->coordY)
+            {
+                object1->coordY = object1->coordY - (object1->radius + object2->radius - distance)/2;
+                object2->coordY = object2->coordY + (object1->radius + object2->radius - distance)/2;
+            }
+
+            if(object1->coordY >= object2->coordY)
+            {
+                object1->coordY = object1->coordY + (object1->radius + object1->radius - distance)/2;
+                object2->coordY = object2->coordY - (object1->radius + object2->radius - distance)/2;
+            }
+        }
+
+        phAddAc(&object1->acX, object1->acX*1.5,-1,object1->weight,1,NORMAL_SPEED);
+        phAddAc(&object1->acY, object1->acY*1.5,-1,object1->weight,1,NORMAL_SPEED);
+
+        phAddAc(&object2->acX, object2->acX*1.5,-1,object2->weight,1,NORMAL_SPEED);
+        phAddAc(&object2->acY, object2->acY*1.5,-1,object2->weight,1,NORMAL_SPEED);
+
+        auxX = object2->acX;
+        object2->acX = object1->acX*-2;
+        object1->acX = auxX*-2;
+
+        auxY = object2->acY;
+        object2->acY = object1->acY*-2;
+        object1->acY = auxY*-2;
+
+        //printf("acX1:%f acX2:%f acY1:%f acY2:%f\n",object1->acX, object2->acX, object1->acY, object2->acY);
+    }
+    return;
+
+}
 // MAP FUNCTIONS ================================================================================== //
 void initMap(gameMap *map, char filePath[])
 {
