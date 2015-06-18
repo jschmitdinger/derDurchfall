@@ -65,7 +65,7 @@ int main(void)
 float linex1 = view.totalWidth/2 - 100;
 float linex2 = view.totalWidth/2 + 100;
 float liney1 = view.totalHeight/2 + 400;
-float liney2 = view.totalHeight/2 + 500;
+float liney2 = view.totalHeight/2 + 200;
 
 	char key[TOTAL_KEY] = {false};
 	int i, j;
