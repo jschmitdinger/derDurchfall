@@ -52,6 +52,7 @@ typedef struct square{
 	char flagB;
 	char flagC;
 	char flagD;
+	char active;
 } square;
 
 typedef struct triangle{

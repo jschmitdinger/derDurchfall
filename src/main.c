@@ -62,6 +62,11 @@ int main(void)
 	limits.flagC = 1;
 	limits.flagD = 1;
 
+	square obstacles[100];
+	for(i=0; i<100; i++){
+		obstacles.active = 0;
+	}
+
 	char key[TOTAL_KEY] = {false};
 	int i, j;
 
