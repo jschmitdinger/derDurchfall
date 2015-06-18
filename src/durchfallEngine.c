@@ -222,7 +222,7 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 		smawY = lineY1;
 	}
 
-	if((object->coordX + object->radius) <= bigX){
+	if((((object->coordX + object->radius) <= bigX) || ((object->coordX - object->radius)) >= smawX) && (((object->coordY + object->radius) <= bigY) || ((object->coordY - object->radius) >= smawY))){
 		if((((distance-object->radius) <= 0) && ((distance+object->radius) > 0)) || (((distance+object->radius) >= 0) && ((distance+object->radius) < 0))){
 			colAngle = lineAngle - objAngle;
 			refAngle = colAngle + lineAngle;
@@ -256,10 +256,6 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 			}
 		}
 	}
-
-	printf("\nPAngle: %.2f\tLAngle: %.2f\tCAngle: %.2f\tRAngle: %.2f", objAngle*180/M_PI, lineAngle*180/M_PI, colAngle*180/M_PI, refAngle*180/M_PI);
-	printf("\td1: %.2f", distance);
-	printf("\tax: %.2f\tay: %.2f", object->acX, object->acY);
 
 	return;
 }
