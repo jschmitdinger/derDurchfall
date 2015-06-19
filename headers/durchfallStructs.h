@@ -41,6 +41,8 @@ typedef struct avatar{
 	float power;
 	float weight;
 	float dAngle;
+	int life;
+	char enable;
 } avatar;
 
 typedef struct square{
@@ -52,7 +54,7 @@ typedef struct square{
 	char flagB;
 	char flagC;
 	char flagD;
-	char active;
+	char enable;
 } square;
 
 typedef struct triangle{
@@ -62,13 +64,22 @@ typedef struct triangle{
 	int coordY2;
 	int coordX3;
 	int coordY3;
+	char enable;
 } triangle;
+
+typedef struct circle{
+	int coordX;
+	int coordY;
+	int radius;
+	char enable;
+} circle;
 
 typedef struct line{
 	int coordX1;
 	int coordY1;
 	int coordX2;
 	int coordY2;
+	char enable;
 } line;
 
 typedef struct gameMap{
