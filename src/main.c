@@ -62,11 +62,6 @@ int main(void)
 	limits.flagC = 1;
 	limits.flagD = 1;
 
-	square obstacles[100];
-	for(i=0; i<100; i++){
-		obstacles.active = 0;
-	}
-
 	char key[TOTAL_KEY] = {false};
 	int i, j;
 
@@ -386,6 +381,9 @@ int main(void)
 
                 	phColideBallRec(&player, &limits);
 
+                	for(i=0; i<map.totalSquares; i++)
+                		phColideBallRec(&player, &map.squares[i]);
+
                 	phMoveObject(&player);
 
                 	moveViewPoint(&player, &view);
@@ -435,6 +433,10 @@ int main(void)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.4,
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "angle: %.2f", player.dAngle);
 
+                	for(i=0; i<map.totalSquares; i++){
+                    	al_draw_rectangle(map.squares[i].coordX1 - view.coordX, map.squares[i].coordY1 - view.coordY, map.squares[i].coordX2 - view.coordX,
+                    			map.squares[i].coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
+                	}
                 	al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
                 	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
                 			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);

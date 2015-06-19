@@ -87,6 +87,9 @@
 #define TYPE_NORMAL						0
 #define NORMAL_SPEED					5
 
+// MAP DEFINITIONS =============================================================================== //
+#define MAP_SQUARES_MAX					100
+
 // PHYSICS DEFINITIONS =========================================================================== //
 #define CONST_POWER						0.2
 

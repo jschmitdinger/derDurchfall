@@ -64,11 +64,24 @@ typedef struct triangle{
 	int coordY3;
 } triangle;
 
+typedef struct line{
+	int coordX1;
+	int coordY1;
+	int coordX2;
+	int coordY2;
+} line;
+
 typedef struct gameMap{
 	FILE *fileMap;
 	int height;
 	int width;
+	int totalSquares;
+	int totalLines;
+	int totalTriangles;
 	char st[100];
+	square *squares;
+	triangle *triangles;
+	line *lines;
 } gameMap;
 
 typedef struct mapView{
