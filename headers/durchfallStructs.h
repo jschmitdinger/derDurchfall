@@ -27,6 +27,12 @@ typedef struct gameStatus{
 	char stage;
 } gameStatus;
 
+typedef struct cursor{
+	int coordX;
+	int coordY;
+	char btn[3];
+} cursor;
+
 typedef struct timeControl{
 	char flag;
 	int time;
@@ -41,6 +47,8 @@ typedef struct avatar{
 	float power;
 	float weight;
 	float dAngle;
+	int life;
+	char enable;
 } avatar;
 
 typedef struct square{
@@ -52,7 +60,7 @@ typedef struct square{
 	char flagB;
 	char flagC;
 	char flagD;
-	char active;
+	char enable;
 } square;
 
 typedef struct triangle{
@@ -62,13 +70,22 @@ typedef struct triangle{
 	int coordY2;
 	int coordX3;
 	int coordY3;
+	char enable;
 } triangle;
+
+typedef struct circle{
+	int coordX;
+	int coordY;
+	int radius;
+	char enable;
+} circle;
 
 typedef struct line{
 	int coordX1;
 	int coordY1;
 	int coordX2;
 	int coordY2;
+	char enable;
 } line;
 
 typedef struct gameMap{
@@ -78,10 +95,12 @@ typedef struct gameMap{
 	int totalSquares;
 	int totalLines;
 	int totalTriangles;
+	int totalCircles;
 	char st[100];
 	square *squares;
 	triangle *triangles;
 	line *lines;
+	circle *circles;
 } gameMap;
 
 typedef struct mapView{

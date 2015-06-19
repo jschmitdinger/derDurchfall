@@ -30,6 +30,12 @@
 #define AL_STATE_ERROR                  9108
 #define AL_IMAGE_ERROR                  9109
 #define AL_FILE_CONFIG_ERROR			9110
+#define AL_MOUSE_ERROR					9111
+
+// MOUSE DEFINITIONS ============================================================================== //
+#define MOUSE_LEFT						0
+#define MOUSE_RIGHT						1
+#define MOUSE_MIDDLE					2
 
 // KEY DEFINITIONS ================================================================================ //
 #define TOTAL_KEY                       50

@@ -195,7 +195,6 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 	float distance;
 	float lineAngle, objAngle, colAngle, refAngle;
 	float bigY, smawY, bigX, smawX;
-	int objDir;
 	float hip;
 
 	a = lineY0 - lineY1;
@@ -224,7 +223,7 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 		smawY = lineY1;
 	}
 
-	if((((object->coordX + object->radius) <= bigX) || ((object->coordX - object->radius)) >= smawX) && (((object->coordY + object->radius) <= bigY) || ((object->coordY - object->radius) >= smawY))){
+	if((((object->coordX + object->radius) <= bigX) && ((object->coordX - object->radius)) >= smawX) && (((object->coordY + object->radius) <= bigY) && ((object->coordY - object->radius) >= smawY))){
 		if((((distance-object->radius) <= 0) && ((distance+object->radius) > 0)) || (((distance+object->radius) >= 0) && ((distance+object->radius) < 0))){
 			colAngle = lineAngle - objAngle;
 			refAngle = colAngle + lineAngle;
@@ -258,6 +257,14 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 			}
 		}
 	}
+
+	return;
+}
+void phColideBallTri(avatar *object, triangle *tri)
+{
+	phColideBallLine(object, tri->coordX2, tri->coordY2, tri->coordX1, tri->coordY1);
+	phColideBallLine(object, tri->coordX3, tri->coordY3, tri->coordX2, tri->coordY2);
+	phColideBallLine(object, tri->coordX1, tri->coordY1, tri->coordX3, tri->coordY3);
 
 	return;
 }
@@ -318,7 +325,7 @@ void phColide2Ball(avatar *object1, avatar *object2)
 void initMap(gameMap *map, char filePath[])
 {
 	int i, type;
-	int countS = 0, countL = 0, countT = 0;
+	int countS = 0, countL = 0, countT = 0, countC = 0;
 
 	map->fileMap = fopen(filePath, "r");
 	if(!map->fileMap)
@@ -329,19 +336,20 @@ void initMap(gameMap *map, char filePath[])
 	fscanf(map->fileMap, "%s", map->st);
 	map->height = atoi(map->st);
 	fscanf(map->fileMap, "%s", map->st);
-	map->totalSquares = atoi(map->st);;
+	map->totalSquares = atoi(map->st);
 	fscanf(map->fileMap, "%s", map->st);
 	map->totalLines = atoi(map->st);;
 	fscanf(map->fileMap, "%s", map->st);
 	map->totalTriangles = atoi(map->st);
-
-	printf("\nSquares: %d\nLines: %d\nTriangles: %d", map->totalSquares, map->totalLines, map->totalTriangles);
+	fscanf(map->fileMap, "%s", map->st);
+	map->totalCircles = atoi(map->st);
 
 	map->squares = (square*) malloc(map->totalSquares*sizeof(square));
-	map->lines = (line*) malloc(map->totalLines);
-	map->triangles = (triangle*) malloc(map->totalTriangles);
+	map->lines = (line*) malloc(map->totalLines*sizeof(line));
+	map->triangles = (triangle*) malloc(map->totalTriangles*sizeof(triangle));
+	map->circles = (circle*) malloc(map->totalCircles*sizeof(circle));
 
-	for(i=0; i<(map->totalSquares+map->totalLines+map->totalTriangles); i++){
+	for(i=0; i<(map->totalSquares+map->totalLines+map->totalTriangles+map->totalCircles); i++){
 		fscanf(map->fileMap, "%s", map->st);
 		type = atoi(map->st);
 		switch(type){
@@ -357,10 +365,27 @@ void initMap(gameMap *map, char filePath[])
 			countS++;
 			break;
 		case 1:
+			fscanf(map->fileMap, "%d", &map->lines[countL].coordX1);
+			fscanf(map->fileMap, "%d", &map->lines[countL].coordY1);
+			fscanf(map->fileMap, "%d", &map->lines[countL].coordX2);
+			fscanf(map->fileMap, "%d", &map->lines[countL].coordY2);
 			countL++;
 			break;
 		case 2:
+			fscanf(map->fileMap, "%d", &map->triangles[countT].coordX1);
+			fscanf(map->fileMap, "%d", &map->triangles[countT].coordY1);
+			fscanf(map->fileMap, "%d", &map->triangles[countT].coordX2);
+			fscanf(map->fileMap, "%d", &map->triangles[countT].coordY2);
+			fscanf(map->fileMap, "%d", &map->triangles[countT].coordX3);
+			fscanf(map->fileMap, "%d", &map->triangles[countT].coordY3);
 			countT++;
+			break;
+		case 3:
+			printf("\nCaiu aqui");
+			fscanf(map->fileMap, "%d", &map->circles[countC].coordX);
+			fscanf(map->fileMap, "%d", &map->circles[countC].coordY);
+			fscanf(map->fileMap, "%d", &map->circles[countC].radius);
+			countC++;
 			break;
 		}
 	}
