@@ -335,6 +335,8 @@ void initMap(gameMap *map, char filePath[])
 	fscanf(map->fileMap, "%s", map->st);
 	map->totalTriangles = atoi(map->st);
 
+	printf("\nSquares: %d\nLines: %d\nTriangles: %d", map->totalSquares, map->totalLines, map->totalTriangles);
+
 	map->squares = (square*) malloc(map->totalSquares*sizeof(square));
 	map->lines = (line*) malloc(map->totalLines);
 	map->triangles = (triangle*) malloc(map->totalTriangles);
