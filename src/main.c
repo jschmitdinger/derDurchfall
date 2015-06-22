@@ -6,7 +6,7 @@
 | ARQUIVO: main.c										FILE: main.c								||
 | VERSAO: v1.0											VERSION: v1.0								||
 | DATA DE ALTERACAO: 02/06/2015							LAST ALTERED DATE: 02/06/2015				||
-// ================================================================================================ */
+// ================================================================================================00 */
 
 // LIBRARY INCLUSIONS / INCLUSAO DE BIBLIOTECAS =================================================== //
 #include <stdio.h>
@@ -30,6 +30,11 @@ int main(void)
 	if(!loadSettings(&settings))
 		return AL_FILE_ERROR;
 
+    char key[TOTAL_KEY] = {false};
+	int i, j;
+    int send_enemy = 0;
+	int number_enemy = 0;
+
 	gameStatus game;
 	game.quit = false;
 	game.stage = STAGE_INTRO_SCREEN;
@@ -43,6 +48,12 @@ int main(void)
 
 	avatar player;
 	initPlayer(&player, TYPE_NORMAL, map.width, map.height);
+
+	avatar enemy1[PHASE1_ENEMYS];
+	for(i = 0; i < PHASE1_ENEMYS; i++)
+	{
+        initEnemy(&enemy1[i],TYPE_NORMAL,map.width,map.height);
+	}
 
 	mapView view;
 	view.totalWidth = map.width;
@@ -62,8 +73,10 @@ int main(void)
 	limits.flagC = 1;
 	limits.flagD = 1;
 
-	char key[TOTAL_KEY] = {false};
-	int i, j;
+	circle vital[1];
+	vital[0].coordX = map.width/3;
+	vital[0].coordY = map.height/2 -200;
+	vital[0].radius = 150;
 
 	// INITIALIZING EVERYTHING / INICIALISANDO TUDO =============================================== //
 	// Initializing allegro / Inicializando allegro ----------------------------------------------- //
@@ -379,6 +392,31 @@ int main(void)
                 	if((!key[KEY_A]) && (!key[KEY_D]))
                 		phNormalize(&player.acX, player.power/2, player.weight);
 
+                    for(i = 0; i < PHASE1_ENEMYS; i++)
+                    {
+                        if(enemy1[i].enable == 1)
+                        {
+                            phMoveEnemy(&enemy1[i],&vital[0]);
+                            phColide2Ball(&enemy1[i],&player);
+                            phColideBallRec(&enemy1[i], &limits);
+
+                            for(j = 0; j <i; j++)
+                            {
+                                phColide2Ball(&enemy1[i],&enemy1[j]);
+                            }
+                        }
+                    }
+
+                    if((send_enemy == 200)&&(number_enemy<=PHASE1_ENEMYS))
+                    {
+                        enemy1[number_enemy].enable = 1;
+                        number_enemy++;
+
+                        send_enemy = 0;
+                    }
+                    if(number_enemy<=PHASE1_ENEMYS)
+                        send_enemy++;
+
                 	phColideBallRec(&player, &limits);
 
                 	for(i=0; i<map.totalSquares; i++)
@@ -437,7 +475,16 @@ int main(void)
                     	al_draw_rectangle(map.squares[i].coordX1 - view.coordX, map.squares[i].coordY1 - view.coordY, map.squares[i].coordX2 - view.coordX,
                     			map.squares[i].coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
                 	}
-                	al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
+
+                    al_draw_filled_circle(vital[0].coordX - view.coordX, vital[0].coordY - view.coordY, vital[0].radius, al_map_rgb(255, 0, 0));
+                    al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
+
+                    for(i = 0; i < PHASE1_ENEMYS; i++)
+                    {
+                        if(enemy1[i].enable == 1)
+                            al_draw_filled_circle(enemy1[i].coordX - view.coordX, enemy1[i].coordY - view.coordY, enemy1[i].radius, al_map_rgb(0, 255, 255));
+                    }
+
                 	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
                 			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
                     break;
