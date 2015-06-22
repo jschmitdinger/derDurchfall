@@ -89,7 +89,7 @@
 #define NORMAL_SPEED					5
 
 // ENEMYS DEFINITIONS ============================================================================ //
-#define PHASE1_ENEMYS                   1
+#define PHASE1_ENEMYS                   5
 #define ENEMY_NORMAL                    0
 
 // MAP DEFINITIONS =============================================================================== //

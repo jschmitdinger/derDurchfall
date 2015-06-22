@@ -73,11 +73,6 @@ int main(void)
 	limits.flagC = 1;
 	limits.flagD = 1;
 
-	circle vital[1];
-	vital[0].coordX = map.width/3;
-	vital[0].coordY = map.height/2 -200;
-	vital[0].radius = 150;
-
 	// INITIALIZING EVERYTHING / INICIALISANDO TUDO =============================================== //
 	// Initializing allegro / Inicializando allegro ----------------------------------------------- //
     if (!al_init())
@@ -396,7 +391,8 @@ int main(void)
                     {
                         if(enemy1[i].enable == 1)
                         {
-                            phMoveEnemy(&enemy1[i],&vital[0]);
+                            phMoveEnemy(&enemy1[i], &map.circles[0]);
+
                             phColide2Ball(&enemy1[i],&player);
                             phColideBallRec(&enemy1[i], &limits);
 
@@ -404,10 +400,12 @@ int main(void)
                             {
                                 phColide2Ball(&enemy1[i],&enemy1[j]);
                             }
+                            for(j=0; j<map.totalSquares; j++)
+                                phColideBallRec(&enemy1[i], &map.squares[j]);
                         }
                     }
 
-                    if((send_enemy == 200)&&(number_enemy<=PHASE1_ENEMYS))
+                    if((send_enemy == 50)&&(number_enemy<=PHASE1_ENEMYS))
                     {
                         enemy1[number_enemy].enable = 1;
                         number_enemy++;
@@ -471,12 +469,7 @@ int main(void)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.4,
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "angle: %.2f", player.dAngle);
 
-                	for(i=0; i<map.totalSquares; i++){
-                    	al_draw_rectangle(map.squares[i].coordX1 - view.coordX, map.squares[i].coordY1 - view.coordY, map.squares[i].coordX2 - view.coordX,
-                    			map.squares[i].coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
-                	}
-
-                    al_draw_filled_circle(vital[0].coordX - view.coordX, vital[0].coordY - view.coordY, vital[0].radius, al_map_rgb(255, 0, 0));
+                    al_draw_filled_circle(map.circles[0].coordX - view.coordX, map.circles[0].coordY - view.coordY, map.circles[0].radius, al_map_rgb(255, 0, 0));
                     al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
 
                     for(i = 0; i < PHASE1_ENEMYS; i++)
@@ -484,6 +477,11 @@ int main(void)
                         if(enemy1[i].enable == 1)
                             al_draw_filled_circle(enemy1[i].coordX - view.coordX, enemy1[i].coordY - view.coordY, enemy1[i].radius, al_map_rgb(0, 255, 255));
                     }
+
+                    for(i=0; i<map.totalSquares; i++){
+                    	al_draw_rectangle(map.squares[i].coordX1 - view.coordX, map.squares[i].coordY1 - view.coordY, map.squares[i].coordX2 - view.coordX,
+                    			map.squares[i].coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
+                	}
 
                 	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
                 			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);

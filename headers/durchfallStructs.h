@@ -89,10 +89,12 @@ typedef struct gameMap{
 	int totalSquares;
 	int totalLines;
 	int totalTriangles;
+	int totalCircles;
 	char st[100];
 	square *squares;
 	triangle *triangles;
 	line *lines;
+	circle *circles;
 } gameMap;
 
 typedef struct mapView{
