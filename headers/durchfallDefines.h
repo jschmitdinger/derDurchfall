@@ -13,6 +13,7 @@
 
 // ??? ============================================================================================ //
 #define SABABA 							0
+#define MUITOS                          10000
 
 // SYSTEM MACROS ================================================================================== //
 #define GAME_SPEED						120
@@ -30,12 +31,6 @@
 #define AL_STATE_ERROR                  9108
 #define AL_IMAGE_ERROR                  9109
 #define AL_FILE_CONFIG_ERROR			9110
-#define AL_MOUSE_ERROR					9111
-
-// MOUSE DEFINITIONS ============================================================================== //
-#define MOUSE_LEFT						0
-#define MOUSE_RIGHT						1
-#define MOUSE_MIDDLE					2
 
 // KEY DEFINITIONS ================================================================================ //
 #define TOTAL_KEY                       50
@@ -92,6 +87,10 @@
 // PLAYER DEFINITIONS ============================================================================ //
 #define TYPE_NORMAL						0
 #define NORMAL_SPEED					5
+
+// ENEMYS DEFINITIONS ============================================================================ //
+#define PHASE1_ENEMYS                   5
+#define ENEMY_NORMAL                    0
 
 // MAP DEFINITIONS =============================================================================== //
 #define MAP_SQUARES_MAX					100

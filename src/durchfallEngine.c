@@ -7,7 +7,7 @@
 | ARQUIVO: durchfallEngine.c						FILE: durchfallEngine.c							||
 | VERSAO: v1.0										VERSION: v1.0									||
 | DATA DE ALTERACAO: 02/06/2015						LAST ALTERED DATE: 02/06/2015					||
-// ================================================================================================ */
+// ================================================================================================ 00*/
 
 #include <stdio.h>
 #include <math.h>
@@ -100,6 +100,28 @@ void phMoveObject(avatar *object)
 
 	object->dAngle = atan(object->acY/object->acX);
 
+	return;
+}
+void phMoveEnemy(avatar *enemy, circle *vital)
+{
+
+    if(vital->coordX - enemy->coordX > 0)
+    {
+        phAddAc(&enemy->acX,enemy->power,1,enemy->weight,1,NORMAL_SPEED);
+    }
+    if(vital->coordY - enemy->coordY > 0)
+    {
+        phAddAc(&enemy->acY,enemy->power,1,enemy->weight,1,NORMAL_SPEED);
+    }
+    if(vital->coordX - enemy->coordX < 0)
+    {
+        phAddAc(&enemy->acX,enemy->power,-1,enemy->weight,1,NORMAL_SPEED);
+    }
+    if(vital->coordY - enemy->coordY < 0)
+    {
+        phAddAc(&enemy->acY,enemy->power,-1,enemy->weight,1,NORMAL_SPEED);
+    }
+    phMoveObject(enemy);
 	return;
 }
 void phColideBallRec(avatar *object, square *block)
@@ -223,7 +245,7 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 		smawY = lineY1;
 	}
 
-	if((((object->coordX + object->radius) <= bigX) && ((object->coordX - object->radius)) >= smawX) && (((object->coordY + object->radius) <= bigY) && ((object->coordY - object->radius) >= smawY))){
+	if((((object->coordX + object->radius) <= bigX) || ((object->coordX - object->radius)) >= smawX) && (((object->coordY + object->radius) <= bigY) || ((object->coordY - object->radius) >= smawY))){
 		if((((distance-object->radius) <= 0) && ((distance+object->radius) > 0)) || (((distance+object->radius) >= 0) && ((distance+object->radius) < 0))){
 			colAngle = lineAngle - objAngle;
 			refAngle = colAngle + lineAngle;
@@ -257,14 +279,6 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 			}
 		}
 	}
-
-	return;
-}
-void phColideBallTri(avatar *object, triangle *tri)
-{
-	phColideBallLine(object, tri->coordX2, tri->coordY2, tri->coordX1, tri->coordY1);
-	phColideBallLine(object, tri->coordX3, tri->coordY3, tri->coordX2, tri->coordY2);
-	phColideBallLine(object, tri->coordX1, tri->coordY1, tri->coordX3, tri->coordY3);
 
 	return;
 }
@@ -427,3 +441,26 @@ int initPlayer(avatar *player, char type, int arenaWidth, int arenaHeight)
 
 	return 1;
 }
+int initEnemy(avatar *player, char type, int arenaWidth, int arenaHeight)
+{
+	player->acX = 0;
+	player->acY = 0;
+	player->coordX = 50;
+	player->coordY = 50;
+	player->enable = 0;
+	player->life = 20;
+
+	switch(type){
+	case ENEMY_NORMAL:
+		player->radius = 15;
+		player->power = 0.2;
+		player->weight = 15/player->radius;
+		break;
+	default:
+		return 0;
+		break;
+	}
+
+	return 1;
+}
+

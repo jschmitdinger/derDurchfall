@@ -6,7 +6,7 @@
 | ARQUIVO: main.c										FILE: main.c								||
 | VERSAO: v1.0											VERSION: v1.0								||
 | DATA DE ALTERACAO: 02/06/2015							LAST ALTERED DATE: 02/06/2015				||
-// ================================================================================================ */
+// ================================================================================================00 */
 
 // LIBRARY INCLUSIONS / INCLUSAO DE BIBLIOTECAS =================================================== //
 #include <stdio.h>
@@ -30,6 +30,11 @@ int main(void)
 	if(!loadSettings(&settings))
 		return AL_FILE_ERROR;
 
+    char key[TOTAL_KEY] = {false};
+	int i, j;
+    int send_enemy = 0;
+	int number_enemy = 0;
+
 	gameStatus game;
 	game.quit = false;
 	game.stage = STAGE_INTRO_SCREEN;
@@ -43,6 +48,12 @@ int main(void)
 
 	avatar player;
 	initPlayer(&player, TYPE_NORMAL, map.width, map.height);
+
+	avatar enemy1[PHASE1_ENEMYS];
+	for(i = 0; i < PHASE1_ENEMYS; i++)
+	{
+        initEnemy(&enemy1[i],TYPE_NORMAL,map.width,map.height);
+	}
 
 	mapView view;
 	view.totalWidth = map.width;
@@ -61,10 +72,6 @@ int main(void)
 	limits.flagB = 1;
 	limits.flagC = 1;
 	limits.flagD = 1;
-
-	cursor mouse;
-	char key[TOTAL_KEY] = {false};
-	int i, j;
 
 	// INITIALIZING EVERYTHING / INICIALISANDO TUDO =============================================== //
 	// Initializing allegro / Inicializando allegro ----------------------------------------------- //
@@ -91,10 +98,6 @@ int main(void)
 	if(!al_install_keyboard())
         return AL_KEYBOARD_ERROR;
 
-	// Initializing the mouse / Inicializando o mouse --------------------------------------------- //
-	if(!al_install_mouse())
-		return AL_MOUSE_ERROR;
-
 	// Initializing text fonts / Inicializando fontes para texto ---------------------------------- //
     al_init_font_addon();
     al_init_ttf_addon();
@@ -116,7 +119,6 @@ int main(void)
     al_register_event_source(eventQueue, al_get_display_event_source(display));
     al_register_event_source(eventQueue, al_get_timer_event_source(timer));
     al_register_event_source(eventQueue, al_get_keyboard_event_source());
-    al_register_event_source(eventQueue, al_get_mouse_event_source());
 
     // Initializing bitviews / Inicializando bitmaps ---------------------------------------------- //
     if(!al_init_image_addon())
@@ -130,39 +132,6 @@ int main(void)
 
         if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         	game.quit = true;
-
-        if(ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {
-           mouse.coordX = ev.mouse.x;
-           mouse.coordY = ev.mouse.y;
-        }
-
-        if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN){
-            switch(ev.mouse.button){
-            case 1:
-            	mouse.btn[MOUSE_LEFT] = true;
-            	break;
-            case 2:
-            	mouse.btn[MOUSE_RIGHT] = true;
-            	break;
-            case 3:
-            	mouse.btn[MOUSE_MIDDLE] = true;
-            	break;
-            }
-        }
-
-        if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
-            switch(ev.mouse.button){
-            case 1:
-            	mouse.btn[MOUSE_LEFT] = false;
-            	break;
-            case 2:
-            	mouse.btn[MOUSE_RIGHT] = false;
-            	break;
-            case 3:
-            	mouse.btn[MOUSE_MIDDLE] = false;
-            	break;
-            }
-        }
 
         if(ev.type == ALLEGRO_EVENT_KEY_DOWN){
             switch(ev.keyboard.keycode){
@@ -418,12 +387,38 @@ int main(void)
                 	if((!key[KEY_A]) && (!key[KEY_D]))
                 		phNormalize(&player.acX, player.power/2, player.weight);
 
+                    for(i = 0; i < PHASE1_ENEMYS; i++)
+                    {
+                        if(enemy1[i].enable == 1)
+                        {
+                            phMoveEnemy(&enemy1[i], &map.circles[0]);
+
+                            phColide2Ball(&enemy1[i],&player);
+                            phColideBallRec(&enemy1[i], &limits);
+
+                            for(j = 0; j <i; j++)
+                            {
+                                phColide2Ball(&enemy1[i],&enemy1[j]);
+                            }
+                            for(j=0; j<map.totalSquares; j++)
+                                phColideBallRec(&enemy1[i], &map.squares[j]);
+                        }
+                    }
+
+                    if((send_enemy == 50)&&(number_enemy<=PHASE1_ENEMYS))
+                    {
+                        enemy1[number_enemy].enable = 1;
+                        number_enemy++;
+
+                        send_enemy = 0;
+                    }
+                    if(number_enemy<=PHASE1_ENEMYS)
+                        send_enemy++;
+
                 	phColideBallRec(&player, &limits);
 
                 	for(i=0; i<map.totalSquares; i++)
                 		phColideBallRec(&player, &map.squares[i]);
-                	for(i=0; i<map.totalTriangles; i++)
-                		phColideBallTri(&player, &map.triangles[i]);
 
                 	phMoveObject(&player);
 
@@ -474,17 +469,20 @@ int main(void)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.4,
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "angle: %.2f", player.dAngle);
 
-                	for(i=0; i<map.totalSquares; i++){
+                    al_draw_filled_circle(map.circles[0].coordX - view.coordX, map.circles[0].coordY - view.coordY, map.circles[0].radius, al_map_rgb(255, 0, 0));
+                    al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
+
+                    for(i = 0; i < PHASE1_ENEMYS; i++)
+                    {
+                        if(enemy1[i].enable == 1)
+                            al_draw_filled_circle(enemy1[i].coordX - view.coordX, enemy1[i].coordY - view.coordY, enemy1[i].radius, al_map_rgb(0, 255, 255));
+                    }
+
+                    for(i=0; i<map.totalSquares; i++){
                     	al_draw_rectangle(map.squares[i].coordX1 - view.coordX, map.squares[i].coordY1 - view.coordY, map.squares[i].coordX2 - view.coordX,
                     			map.squares[i].coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
                 	}
-                	for(i=0; i<map.totalTriangles; i++){
-                		al_draw_triangle(map.triangles[i].coordX1 - view.coordX, map.triangles[i].coordY1 - view.coordY, map.triangles[i].coordX2 - view.coordX, map.triangles[i].coordY2 - view.coordY, map.triangles[i].coordX3 - view.coordX, map.triangles[i].coordY3 - view.coordY, al_map_rgb(255, 255, 255), 5);
-                	}
-                	for(i=0; i<map.totalCircles; i++){
-                		al_draw_circle(map.circles[i].coordX - view.coordX, map.circles[i].coordY - view.coordY, map.circles[i].radius, al_map_rgb(255, 255, 255), 5);
-                	}
-                	al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
+
                 	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
                 			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
                     break;
