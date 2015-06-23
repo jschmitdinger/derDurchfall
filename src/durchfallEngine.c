@@ -120,6 +120,8 @@ void phMoveEnemy(avatar *enemy, circle vital[],float totalCircles)
     	setY = vital[enemy->objective].coordY;
     }
 
+    //setar aqui os valores dos sets
+
     if(setX - enemy->coordX > 0)
     {
         phAddAc(&enemy->acX,enemy->power,1,enemy->weight,1,ENEMY_SPEED);
