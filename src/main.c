@@ -49,10 +49,9 @@ int main(void)
 	avatar player;
 	initPlayer(&player, TYPE_NORMAL, map.width, map.height);
 
-	avatar enemy1[PHASE1_ENEMYS];
-	for(i = 0; i < PHASE1_ENEMYS; i++)
+	for(i = 0; i < map.totalEnemies; i++)
 	{
-        initEnemy(&enemy1[i],TYPE_NORMAL,map.width,map.height);
+        initEnemy(&map.enemies[i],TYPE_NORMAL,map.width,map.height);
 	}
 
 	mapView view;
@@ -387,32 +386,32 @@ int main(void)
                 	if((!key[KEY_A]) && (!key[KEY_D]))
                 		phNormalize(&player.acX, player.power/2, player.weight);
 
-                    for(i = 0; i < PHASE1_ENEMYS; i++)
+                    for(i = 0; i < map.totalEnemies; i++)
                     {
-                        if(enemy1[i].enable == 1)
+                        if(map.enemies[i].enable == 1)
                         {
-                            phMoveEnemy(&enemy1[i], &map.circles[0]);
+                            phMoveEnemy(&map.enemies[i], map.circles, map.totalCircles);
 
-                            phColide2Ball(&enemy1[i],&player);
-                            phColideBallRec(&enemy1[i], &limits);
+                            phColide2Ball(&map.enemies[i],&player);
+                            phColideBallRec(&map.enemies[i], &limits);
 
                             for(j = 0; j <i; j++)
                             {
-                                phColide2Ball(&enemy1[i],&enemy1[j]);
+                                phColide2Ball(&map.enemies[i],&map.enemies[j]);
                             }
                             for(j=0; j<map.totalSquares; j++)
-                                phColideBallRec(&enemy1[i], &map.squares[j]);
+                                phColideBallRec(&map.enemies[i], &map.squares[j]);
                         }
                     }
 
-                    if((send_enemy == 50)&&(number_enemy<=PHASE1_ENEMYS))
+                    if((send_enemy == 50)&&(number_enemy<=map.totalEnemies))
                     {
-                        enemy1[number_enemy].enable = 1;
+                        map.enemies[number_enemy].enable = 1;
                         number_enemy++;
 
                         send_enemy = 0;
                     }
-                    if(number_enemy<=PHASE1_ENEMYS)
+                    if(number_enemy<=map.totalEnemies)
                         send_enemy++;
 
                 	phColideBallRec(&player, &limits);
@@ -469,13 +468,17 @@ int main(void)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.4,
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "angle: %.2f", player.dAngle);
 
-                    al_draw_filled_circle(map.circles[0].coordX - view.coordX, map.circles[0].coordY - view.coordY, map.circles[0].radius, al_map_rgb(255, 0, 0));
+                    for(i=0; i<map.totalCircles; i++)
+                    {
+                        al_draw_filled_circle(map.circles[i].coordX - view.coordX, map.circles[i].coordY - view.coordY, map.circles[i].radius, al_map_rgb(255, 0, 0));
+                    }
+
                     al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
 
-                    for(i = 0; i < PHASE1_ENEMYS; i++)
+                    for(i = 0; i < map.totalEnemies; i++)
                     {
-                        if(enemy1[i].enable == 1)
-                            al_draw_filled_circle(enemy1[i].coordX - view.coordX, enemy1[i].coordY - view.coordY, enemy1[i].radius, al_map_rgb(0, 255, 255));
+                        if(map.enemies[i].enable == 1)
+                            al_draw_filled_circle(map.enemies[i].coordX - view.coordX, map.enemies[i].coordY - view.coordY, map.enemies[i].radius, al_map_rgb(0, 255, 255));
                     }
 
                     for(i=0; i<map.totalSquares; i++){

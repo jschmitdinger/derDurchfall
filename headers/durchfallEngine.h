@@ -25,7 +25,7 @@ void checkTimer(timeControl *timer);
 // PHYSICS FUNCTIONS ============================================================================== //
 void phAddAc(float *ac, float power, char dir, float mass, float trig, float limit);
 void phMoveObject(avatar *object);
-void phMoveEnemy(avatar *enemy, circle *vital);
+void phMoveEnemy(avatar *enemy, circle vital[],float totalCircles);
 void phNormalize(float *ac, float power, float mass);
 void phColideBallRec(avatar *object, square *block);
 void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, float lineY1);

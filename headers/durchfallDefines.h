@@ -15,6 +15,7 @@
 #define SABABA 							0
 #define MUITOS                          10000
 
+
 // SYSTEM MACROS ================================================================================== //
 #define GAME_SPEED						120
 
@@ -89,8 +90,9 @@
 #define NORMAL_SPEED					5
 
 // ENEMYS DEFINITIONS ============================================================================ //
-#define PHASE1_ENEMYS                   5
+#define PHASE1_ENEMYS                   2
 #define ENEMY_NORMAL                    0
+#define ENEMY_SPEED                     3
 
 // MAP DEFINITIONS =============================================================================== //
 #define MAP_SQUARES_MAX					100
