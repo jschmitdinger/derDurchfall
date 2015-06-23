@@ -1,0 +1,10 @@
+SIZE_X
+SIZE_Y
+
+TOTAL_SQUARES
+TOTAL_LINES
+TOTAL_TRIANGLES
+TOTAL_VITALS
+TOTAL_ENEMIES
+
+0 is Square, 1 is Line, 2 is Triangle, 3 is vital and 4 is enemies
