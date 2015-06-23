@@ -90,11 +90,13 @@ typedef struct gameMap{
 	int totalLines;
 	int totalTriangles;
 	int totalCircles;
+	int totalEnemies;
 	char st[100];
 	square *squares;
 	triangle *triangles;
 	line *lines;
 	circle *circles;
+	avatar *enemies;
 } gameMap;
 
 typedef struct mapView{

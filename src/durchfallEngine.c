@@ -73,13 +73,13 @@ void phAddAc(float *ac, float power, char dir, float mass, float trig, float lim
 	if(dir > 0){
 		if((*ac+power) < limit)
 			*ac += (power * mass * trig);
-		else
-			*ac = limit;
+        else if(limit == 0)
+            *ac = limit;
 	} else{
 		if((*ac-power) > (-limit))
 			*ac -= (power * mass * trig);
-		else
-			*ac = (-limit);
+        else if(limit == 0)
+            *ac = limit;
 	}
 
 	return;
@@ -102,24 +102,35 @@ void phMoveObject(avatar *object)
 
 	return;
 }
-void phMoveEnemy(avatar *enemy, circle *vital)
+void phMoveEnemy(avatar *enemy, circle vital[],float totalCircles)
 {
+    int circle_distance;
+	int circle_nearest;
+    int j;
+    for(j = 0; j<totalCircles; j++)
+    {
+        if((circle_distance > (sqrt(pow((enemy->coordX - vital[j].coordX),2) + pow((enemy->coordY - vital[j].coordY),2))))||(j == 0))
+        {
+            circle_distance = sqrt(pow((enemy->coordX - vital[j].coordX),2) + pow((enemy->coordY - vital[j].coordY),2));
+            circle_nearest = j;
+        }
+    }
 
-    if(vital->coordX - enemy->coordX > 0)
+    if(vital[circle_nearest].coordX - enemy->coordX > 0)
     {
-        phAddAc(&enemy->acX,enemy->power,1,enemy->weight,1,NORMAL_SPEED);
+        phAddAc(&enemy->acX,enemy->power,1,enemy->weight,1,ENEMY_SPEED);
     }
-    if(vital->coordY - enemy->coordY > 0)
+    if(vital[circle_nearest].coordY - enemy->coordY > 0)
     {
-        phAddAc(&enemy->acY,enemy->power,1,enemy->weight,1,NORMAL_SPEED);
+        phAddAc(&enemy->acY,enemy->power,1,enemy->weight,1,ENEMY_SPEED);
     }
-    if(vital->coordX - enemy->coordX < 0)
+    if(vital[circle_nearest].coordX - enemy->coordX < 0)
     {
-        phAddAc(&enemy->acX,enemy->power,-1,enemy->weight,1,NORMAL_SPEED);
+        phAddAc(&enemy->acX,enemy->power,-1,enemy->weight,1,ENEMY_SPEED);
     }
-    if(vital->coordY - enemy->coordY < 0)
+    if(vital[circle_nearest].coordY - enemy->coordY < 0)
     {
-        phAddAc(&enemy->acY,enemy->power,-1,enemy->weight,1,NORMAL_SPEED);
+        phAddAc(&enemy->acY,enemy->power,-1,enemy->weight,1,ENEMY_SPEED);
     }
     phMoveObject(enemy);
 	return;
@@ -358,11 +369,16 @@ void initMap(gameMap *map, char filePath[])
 	map->totalTriangles = atoi(map->st);
 	fscanf(map->fileMap, "%s", map->st);
 	map->totalCircles = atoi(map->st);
+	fscanf(map->fileMap, "%s", map->st);
+	map->totalEnemies = atoi(map->st);
+
+	printf("\nTotal circles: %d\tTotal enemies: %d", map->totalCircles, map->totalEnemies);
 
 	map->squares = (square*) malloc(map->totalSquares*sizeof(square));
 	map->lines = (line*) malloc(map->totalLines*sizeof(line));
 	map->triangles = (triangle*) malloc(map->totalTriangles*sizeof(triangle));
 	map->circles = (circle*) malloc(map->totalCircles*sizeof(circle));
+	map->enemies = (avatar*) malloc(map->totalEnemies*sizeof(avatar));
 
 	for(i=0; i<(map->totalSquares+map->totalLines+map->totalTriangles+map->totalCircles); i++){
 		fscanf(map->fileMap, "%s", map->st);
