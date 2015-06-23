@@ -27,6 +27,12 @@ typedef struct gameStatus{
 	char stage;
 } gameStatus;
 
+typedef struct cursor{
+	int coordX;
+	int coordY;
+	char btn[3];
+} cursor;
+
 typedef struct timeControl{
 	char flag;
 	int time;
@@ -43,6 +49,8 @@ typedef struct avatar{
 	float dAngle;
 	int life;
 	char enable;
+	timeControl timeMovement;
+	timeControl timeAttack;
 } avatar;
 
 typedef struct square{

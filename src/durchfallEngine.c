@@ -228,6 +228,7 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 	float distance;
 	float lineAngle, objAngle, colAngle, refAngle;
 	float bigY, smawY, bigX, smawX;
+	int objDir;
 	float hip;
 
 	a = lineY0 - lineY1;
@@ -346,6 +347,43 @@ void phColide2Ball(avatar *object1, avatar *object2)
     return;
 
 }
+
+// ATTACK FUNCTIONS =============================================================================== //
+void atkTackle(avatar *agent, int targetX, int targetY)
+{
+	//
+	float angle;
+	float trigX, trigY;
+
+	angle = atan((targetY - agent->coordY)/(targetX - agent->coordX)) * (-1);
+
+	trigX = cos(angle);
+	trigY = sin(angle);
+
+	if(targetX > agent->coordX){
+		if(trigX < 0)
+			trigX *= (-1);
+	} else if(targetX < agent->coordX){
+		if(trigX > 0)
+			trigX *= (-1);
+	}
+	if(targetY > agent->coordY){
+		if(trigY < 0)
+			trigY *= (-1);
+	} else if(targetY < agent->coordY){
+		if(trigY > 0)
+			trigY *= (-1);
+	}
+
+	agent->acX = 0;
+	agent->acY = 0;
+
+	phAddAc(&agent->acX, TACKLE_SPEED*trigX, 1, agent->weight, 1, TACKLE_SPEED);
+	phAddAc(&agent->acY, TACKLE_SPEED*trigY, 1, agent->weight, 1, TACKLE_SPEED);
+
+	return;
+}
+
 // MAP FUNCTIONS ================================================================================== //
 void initMap(gameMap *map, char filePath[])
 {
@@ -454,6 +492,11 @@ int initPlayer(avatar *player, char type, int arenaWidth, int arenaHeight)
 		return 0;
 		break;
 	}
+
+	player->timeAttack.flag = false;
+	player->timeAttack.time = 0;
+	player->timeMovement.flag = false;
+	player->timeMovement.time = 0;
 
 	return 1;
 }

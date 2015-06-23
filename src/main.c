@@ -30,6 +30,7 @@ int main(void)
 	if(!loadSettings(&settings))
 		return AL_FILE_ERROR;
 
+	cursor mouse;
     char key[TOTAL_KEY] = {false};
 	int i, j;
     int send_enemy = 0;
@@ -97,6 +98,10 @@ int main(void)
 	if(!al_install_keyboard())
         return AL_KEYBOARD_ERROR;
 
+	// Initializing the mouse / Inicializando o mouse --------------------------------------------- //
+	if(!al_install_mouse())
+		return AL_MOUSE_ERROR;
+
 	// Initializing text fonts / Inicializando fontes para texto ---------------------------------- //
     al_init_font_addon();
     al_init_ttf_addon();
@@ -118,6 +123,7 @@ int main(void)
     al_register_event_source(eventQueue, al_get_display_event_source(display));
     al_register_event_source(eventQueue, al_get_timer_event_source(timer));
     al_register_event_source(eventQueue, al_get_keyboard_event_source());
+    al_register_event_source(eventQueue, al_get_mouse_event_source());
 
     // Initializing bitviews / Inicializando bitmaps ---------------------------------------------- //
     if(!al_init_image_addon())
@@ -131,6 +137,39 @@ int main(void)
 
         if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         	game.quit = true;
+
+        if(ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {
+           mouse.coordX = ev.mouse.x;
+           mouse.coordY = ev.mouse.y;
+        }
+
+        if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN){
+            switch(ev.mouse.button){
+            case 1:
+            	mouse.btn[MOUSE_LEFT] = true;
+            	break;
+            case 2:
+            	mouse.btn[MOUSE_RIGHT] = true;
+            	break;
+            case 3:
+            	mouse.btn[MOUSE_MIDDLE] = true;
+            	break;
+            }
+        }
+
+        if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
+            switch(ev.mouse.button){
+            case 1:
+            	mouse.btn[MOUSE_LEFT] = false;
+            	break;
+            case 2:
+            	mouse.btn[MOUSE_RIGHT] = false;
+            	break;
+            case 3:
+            	mouse.btn[MOUSE_MIDDLE] = false;
+            	break;
+            }
+        }
 
         if(ev.type == ALLEGRO_EVENT_KEY_DOWN){
             switch(ev.keyboard.keycode){
@@ -373,18 +412,23 @@ int main(void)
                 		setTimer(&menuControl.time, 20);
                 		game.stage = STAGE_PAUSE_MENU;
                 	}
-                	if(key[KEY_W])
+                	if(key[KEY_W] && player.timeMovement.flag)
                 		phAddAc(&player.acY, player.power, -1, player.weight, 1, NORMAL_SPEED);
-                	if(key[KEY_S])
+                	if(key[KEY_S] && player.timeMovement.flag)
                 		phAddAc(&player.acY, player.power, 1, player.weight, 1, NORMAL_SPEED);
-                	if(key[KEY_A])
+                	if(key[KEY_A] && player.timeMovement.flag)
                 		phAddAc(&player.acX, player.power, -1, player.weight, 1, NORMAL_SPEED);
-                	if(key[KEY_D])
+                	if(key[KEY_D] && player.timeMovement.flag)
                 		phAddAc(&player.acX, player.power, 1, player.weight, 1, NORMAL_SPEED);
                 	if((!key[KEY_W]) && (!key[KEY_S]))
                 		phNormalize(&player.acY, player.power/2, player.weight);
                 	if((!key[KEY_A]) && (!key[KEY_D]))
                 		phNormalize(&player.acX, player.power/2, player.weight);
+                	if(mouse.btn[MOUSE_LEFT] && player.timeAttack.flag){
+                		atkTackle(&player, mouse.coordX + view.coordX, mouse.coordY + view.coordY);
+                		player.timeAttack.time = 100;
+                		player.timeMovement.time = 10;
+                	}
 
                     for(i = 0; i < map.totalEnemies; i++)
                     {
@@ -436,6 +480,8 @@ int main(void)
             }
 
             checkTimer(&menuControl);
+            checkTimer(&player.timeAttack);
+            checkTimer(&player.timeMovement);
         }
 
         // GAME ART / ARTE DO JOGO --------------------------------------------------------------- //
@@ -488,6 +534,7 @@ int main(void)
 
                 	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
                 			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
+                    al_draw_filled_circle(mouse.coordX, mouse.coordY, 5, al_map_rgb(255, 255, 255));
                     break;
                 case STAGE_PAUSE_MENU:
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,

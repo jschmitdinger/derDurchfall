@@ -32,6 +32,7 @@
 #define AL_STATE_ERROR                  9108
 #define AL_IMAGE_ERROR                  9109
 #define AL_FILE_CONFIG_ERROR			9110
+#define AL_MOUSE_ERROR					9111
 
 // KEY DEFINITIONS ================================================================================ //
 #define TOTAL_KEY                       50
@@ -70,6 +71,11 @@
 #define KEY_SHIFT                       33
 #define KEY_BACKSPACE					34
 
+// MOUSE DEFINITIONS ============================================================================== //
+#define MOUSE_LEFT						0
+#define MOUSE_RIGHT						1
+#define MOUSE_MIDDLE					2
+
 // FONT DEFINITIONS =============================================================================== //
 #define FONT_NAME                       1
 #define FONT_SIZES                      2
@@ -88,6 +94,7 @@
 // PLAYER DEFINITIONS ============================================================================ //
 #define TYPE_NORMAL						0
 #define NORMAL_SPEED					5
+#define TACKLE_SPEED					10
 
 // ENEMYS DEFINITIONS ============================================================================ //
 #define PHASE1_ENEMYS                   2
