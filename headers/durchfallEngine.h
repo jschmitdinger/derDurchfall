@@ -26,6 +26,7 @@ void checkTimer(timeControl *timer);
 void phAddAc(float *ac, float power, char dir, float mass, float trig, float limit);
 void phMoveObject(avatar *object);
 void phMoveEnemy(avatar *enemy, circle vital[],float totalCircles);
+void phMoveShots(projectile shots[]);
 void phNormalize(float *ac, float power, float mass);
 void phColideBallRec(avatar *object, square *block);
 void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, float lineY1);
@@ -33,6 +34,7 @@ void phColide2Ball(avatar *object1, avatar *object2);
 
 // ATTACK FUNCTIONS =============================================================================== //
 void atkTackle(avatar *agent, int targetX, int targetY);
+void atkShoot(avatar *agent, int targetX, int targetY);
 
 // MAP FUNCTIONS ================================================================================== //
 void initMap(gameMap *map, char filePath[]);

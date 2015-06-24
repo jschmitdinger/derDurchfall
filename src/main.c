@@ -424,10 +424,14 @@ int main(void)
                 		phNormalize(&player.acY, player.power/2, player.weight);
                 	if((!key[KEY_A]) && (!key[KEY_D]))
                 		phNormalize(&player.acX, player.power/2, player.weight);
-                	if(mouse.btn[MOUSE_LEFT] && player.timeAttack.flag){
+                	if(mouse.btn[MOUSE_RIGHT] && player.timeAttack.flag){
                 		atkTackle(&player, mouse.coordX + view.coordX, mouse.coordY + view.coordY);
                 		player.timeAttack.time = 100;
                 		player.timeMovement.time = 10;
+                	}
+                	if(mouse.btn[MOUSE_LEFT] && player.timeAttack.flag){
+                		atkShoot(&player, mouse.coordX + view.coordX, mouse.coordY + view.coordY);
+                		player.timeAttack.time = 20;
                 	}
 
                     for(i = 0; i < map.totalEnemies; i++)
@@ -463,6 +467,7 @@ int main(void)
                 	for(i=0; i<map.totalSquares; i++)
                 		phColideBallRec(&player, &map.squares[i]);
 
+                	phMoveShots(player.shots);
                 	phMoveObject(&player);
 
                 	moveViewPoint(&player, &view);
@@ -520,6 +525,11 @@ int main(void)
                     }
 
                     al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
+
+                    for(i=0; i<TOTAL_SHOTS; i++){
+                    	if(player.shots[i].enable)
+                    		al_draw_filled_circle(player.shots[i].coordX - view.coordX, player.shots[i].coordY - view.coordY, 5, al_map_rgb(255, 255, 255));
+                    }
 
                     for(i = 0; i < map.totalEnemies; i++)
                     {

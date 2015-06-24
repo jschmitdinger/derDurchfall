@@ -102,6 +102,19 @@ void phMoveObject(avatar *object)
 
 	return;
 }
+void phMoveShots(projectile shots[])
+{
+	//
+	int i;
+	for(i=0; i<TOTAL_SHOTS; i++){
+		if(shots[i].enable){
+			shots[i].coordX += shots[i].acX;
+			shots[i].coordY += shots[i].acY;
+		}
+	}
+
+	return;
+}
 void phMoveEnemy(avatar *enemy, circle vital[],float totalCircles)
 {
 	int setX, setY, setD;
@@ -356,7 +369,6 @@ void phColide2Ball(avatar *object1, avatar *object2)
 // ATTACK FUNCTIONS =============================================================================== //
 void atkTackle(avatar *agent, int targetX, int targetY)
 {
-	//
 	float angle;
 	float trigX, trigY;
 
@@ -385,6 +397,43 @@ void atkTackle(avatar *agent, int targetX, int targetY)
 
 	phAddAc(&agent->acX, TACKLE_SPEED*trigX, 1, agent->weight, 1, TACKLE_SPEED);
 	phAddAc(&agent->acY, TACKLE_SPEED*trigY, 1, agent->weight, 1, TACKLE_SPEED);
+
+	return;
+}
+
+void atkShoot(avatar *agent, int targetX, int targetY)
+{
+	float angle;
+	float trigX, trigY;
+
+	angle = atan((targetY - agent->coordY)/(targetX - agent->coordX)) * (-1);
+
+	trigX = cos(angle);
+	trigY = sin(angle);
+
+	if(targetX > agent->coordX){
+		if(trigX < 0)
+			trigX *= (-1);
+	} else if(targetX < agent->coordX){
+		if(trigX > 0)
+			trigX *= (-1);
+	}
+	if(targetY > agent->coordY){
+		if(trigY < 0)
+			trigY *= (-1);
+	} else if(targetY < agent->coordY){
+		if(trigY > 0)
+			trigY *= (-1);
+	}
+
+	if(!agent->shots[agent->shotCount].enable){
+		agent->shots[agent->shotCount].coordX = agent->coordX;
+		agent->shots[agent->shotCount].coordY = agent->coordY;
+		agent->shots[agent->shotCount].acX = BULLET_SPEED*trigX;
+		agent->shots[agent->shotCount].acY = BULLET_SPEED*trigY;
+		agent->shots[agent->shotCount].enable = 1;
+		agent->shotCount++;
+	}
 
 	return;
 }
@@ -493,6 +542,8 @@ void moveViewPoint(avatar *reference, mapView *view)
 // AVATAR FUNCTIONS =============================================================================== //
 int initPlayer(avatar *player, char type, int arenaWidth, int arenaHeight)
 {
+	int i;
+
 	player->acX = 0;
 	player->acY = 0;
 	player->coordX = arenaWidth/2;
@@ -513,6 +564,14 @@ int initPlayer(avatar *player, char type, int arenaWidth, int arenaHeight)
 	player->timeAttack.time = 0;
 	player->timeMovement.flag = false;
 	player->timeMovement.time = 0;
+
+	for(i=0; i<TOTAL_SHOTS; i++){
+		player->shots[i].enable = 0;
+		player->shots[i].acX = 0;
+		player->shots[i].acY = 0;
+		player->shots[i].coordX = player->coordX;
+		player->shots[i].coordY = player->coordY;
+	}
 
 	return 1;
 }

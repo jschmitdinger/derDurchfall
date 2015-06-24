@@ -38,6 +38,14 @@ typedef struct timeControl{
 	int time;
 } timeControl;
 
+typedef struct projectile{
+	int coordX;
+	int coordY;
+	int acX;
+	int acY;
+	int enable;
+} projectile;
+
 typedef struct avatar{
 	float coordX;
 	float coordY;
@@ -51,8 +59,10 @@ typedef struct avatar{
 	char enable;
 	int stepCounter;
 	int objective;
+	int shotCount;
 	timeControl timeMovement;
 	timeControl timeAttack;
+	projectile shots[TOTAL_SHOTS];
 } avatar;
 
 typedef struct square{
