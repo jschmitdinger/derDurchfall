@@ -95,7 +95,7 @@
 #define TYPE_NORMAL						0
 #define NORMAL_SPEED					5
 #define TACKLE_SPEED					10
-#define TOTAL_SHOTS						500
+#define TOTAL_SHOTS						300
 #define BULLET_SPEED					20
 
 // ENEMYS DEFINITIONS ============================================================================ //

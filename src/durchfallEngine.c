@@ -365,6 +365,35 @@ void phColide2Ball(avatar *object1, avatar *object2)
     return;
 
 }
+void phColideShotRec(avatar *object, square *block)
+{
+    int i;
+
+    for(i = 0; i<TOTAL_SHOTS; i++)
+    {
+        if((object->shots[i].coordX > block->coordX1)&&(object->shots[i].coordX < block->coordX2)&&(object->shots[i].coordY > block->coordY1)&&(object->shots[i].coordY < block->coordY2)&&(object->shots[i].enable == 1))
+        {
+            printf("caiu aqui");
+            object->shots[i].enable = 0;
+        }
+    }
+}
+void phColideShotBall(avatar *shooter, avatar *target)
+{
+    float distance;
+    int i;
+
+    for(i = 0; i<TOTAL_SHOTS; i++)
+    {
+        distance = sqrt(pow((shooter->shots[i].coordX - target->coordX),2)+(pow((shooter->shots[i].coordY - target->coordY),2)));
+
+        if((distance<=target->radius)&&(shooter->shots[i].enable == 1))
+        {
+            shooter->shots[i].enable = 0;
+            target->life-=10;
+        }
+    }
+}
 
 // ATTACK FUNCTIONS =============================================================================== //
 void atkTackle(avatar *agent, int targetX, int targetY)

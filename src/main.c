@@ -443,12 +443,18 @@ int main(void)
                             phColide2Ball(&map.enemies[i],&player);
                             phColideBallRec(&map.enemies[i], &limits);
 
+                            phColideShotBall(&player,&map.enemies[i]);
+
                             for(j = 0; j <i; j++)
                             {
-                                phColide2Ball(&map.enemies[i],&map.enemies[j]);
+                                if(map.enemies[j].enable == 1)
+                                    phColide2Ball(&map.enemies[i],&map.enemies[j]);
                             }
                             for(j=0; j<map.totalSquares; j++)
                                 phColideBallRec(&map.enemies[i], &map.squares[j]);
+
+                            if(map.enemies[i].life <= 0)
+                                map.enemies[i].enable = 0;
                         }
                     }
 
@@ -465,7 +471,10 @@ int main(void)
                 	phColideBallRec(&player, &limits);
 
                 	for(i=0; i<map.totalSquares; i++)
+                    {
                 		phColideBallRec(&player, &map.squares[i]);
+                		phColideShotRec(&player, &map.squares[i]);
+                    }
 
                 	phMoveShots(player.shots);
                 	phMoveObject(&player);
