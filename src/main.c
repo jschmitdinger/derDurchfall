@@ -35,6 +35,7 @@ int main(void)
 	int i, j;
     int send_enemy = 0;
 	int number_enemy = 0;
+	int enemys_dead = 0;
 
 	gameStatus game;
 	game.quit = false;
@@ -424,12 +425,12 @@ int main(void)
                 		phNormalize(&player.acY, player.power/2, player.weight);
                 	if((!key[KEY_A]) && (!key[KEY_D]))
                 		phNormalize(&player.acX, player.power/2, player.weight);
-                	if(mouse.btn[MOUSE_RIGHT] && player.timeAttack.flag){
+                	if((mouse.btn[MOUSE_RIGHT]) && (player.timeAttack.flag)){
                 		atkTackle(&player, mouse.coordX + view.coordX, mouse.coordY + view.coordY);
                 		player.timeAttack.time = 100;
                 		player.timeMovement.time = 10;
                 	}
-                	if(mouse.btn[MOUSE_LEFT] && player.timeAttack.flag){
+                	if((mouse.btn[MOUSE_LEFT]) && (player.timeAttack.flag)){
                 		atkShoot(&player, mouse.coordX + view.coordX, mouse.coordY + view.coordY);
                 		player.timeAttack.time = 20;
                 	}
@@ -445,6 +446,7 @@ int main(void)
 
                             phColideShotBall(&player,&map.enemies[i]);
 
+
                             for(j = 0; j <i; j++)
                             {
                                 if(map.enemies[j].enable == 1)
@@ -454,7 +456,10 @@ int main(void)
                                 phColideBallRec(&map.enemies[i], &map.squares[j]);
 
                             if(map.enemies[i].life <= 0)
+                            {
                                 map.enemies[i].enable = 0;
+                                enemys_dead++;
+                            }
                         }
                     }
 
@@ -474,6 +479,14 @@ int main(void)
                     {
                 		phColideBallRec(&player, &map.squares[i]);
                 		phColideShotRec(&player, &map.squares[i]);
+                    }
+
+                    if(enemys_dead == map.totalEnemies)
+                    {
+                        number_enemy = 0;
+                    enemys_dead = 0;
+                        for(i=0; i<map.totalEnemies; i++)
+                            initEnemy(&map.enemies[i], &map, TYPE_NORMAL,map.width,map.height);
                     }
 
                 	phMoveShots(player.shots);
