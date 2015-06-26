@@ -373,7 +373,6 @@ void phColideShotRec(avatar *object, square *block)
     {
         if((object->shots[i].coordX > block->coordX1)&&(object->shots[i].coordX < block->coordX2)&&(object->shots[i].coordY > block->coordY1)&&(object->shots[i].coordY < block->coordY2)&&(object->shots[i].enable == 1))
         {
-            printf("caiu aqui");
             object->shots[i].enable = 0;
         }
     }
@@ -455,14 +454,27 @@ void atkShoot(avatar *agent, int targetX, int targetY)
 			trigY *= (-1);
 	}
 
+	if(agent->shotCount >= 300){
+		agent->shotCount = 0;
+		printf("\nCaiu aqui, shot count %d %d", agent->shotCount , agent->shots[agent->shotCount].enable);
+	}
+
 	if(!agent->shots[agent->shotCount].enable){
+
+		printf("\n%d\t%d", agent->shotCount, agent->shots[agent->shotCount].enable);
+
 		agent->shots[agent->shotCount].coordX = agent->coordX;
 		agent->shots[agent->shotCount].coordY = agent->coordY;
 		agent->shots[agent->shotCount].acX = BULLET_SPEED*trigX;
 		agent->shots[agent->shotCount].acY = BULLET_SPEED*trigY;
 		agent->shots[agent->shotCount].enable = 1;
+
+		printf("\t%d", agent->shots[agent->shotCount].enable);
+
 		agent->shotCount++;
 	}
+
+	fflush(stdout);
 
 	return;
 }
@@ -577,6 +589,7 @@ int initPlayer(avatar *player, char type, int arenaWidth, int arenaHeight)
 	player->acY = 0;
 	player->coordX = arenaWidth/2;
 	player->coordY = arenaHeight/2;
+	player->shotCount = 0;
 
 	switch(type){
 	case TYPE_NORMAL:

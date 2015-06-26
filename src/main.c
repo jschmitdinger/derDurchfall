@@ -31,6 +31,10 @@ int main(void)
 		return AL_FILE_ERROR;
 
 	cursor mouse;
+	mouse.btn[0] = 0;
+	mouse.btn[1] = 0;
+	mouse.btn[2] = 0;
+
     char key[TOTAL_KEY] = {false};
 	int i, j;
     int send_enemy = 0;
@@ -432,10 +436,10 @@ int main(void)
                 	}
                 	if((mouse.btn[MOUSE_LEFT]) && (player.timeAttack.flag)){
                 		atkShoot(&player, mouse.coordX + view.coordX, mouse.coordY + view.coordY);
-                		player.timeAttack.time = 20;
+                		player.timeAttack.time = 5;
                 	}
 
-                    for(i = 0; i < map.totalEnemies; i++)
+                    for(i = 0; i < (map.totalEnemies-1); i++)
                     {
                         if(map.enemies[i].enable == 1)
                         {
