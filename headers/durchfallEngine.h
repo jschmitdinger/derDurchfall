@@ -37,6 +37,7 @@ void phColideShotBall(avatar *shooter, avatar *target);
 // ATTACK FUNCTIONS =============================================================================== //
 void atkTackle(avatar *agent, int targetX, int targetY);
 void atkShoot(avatar *agent, int targetX, int targetY);
+void vitalDemage(circle *vital, avatar *enemy);
 
 // MAP FUNCTIONS ================================================================================== //
 void initMap(gameMap *map, char filePath[]);
