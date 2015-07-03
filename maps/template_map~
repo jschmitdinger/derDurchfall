@@ -1,0 +1,11 @@
+SIZE_X
+SIZE_Y
+
+TOTAL_SQUARES
+TOTAL_LINES
+TOTAL_TRIANGLES
+
+1 is Square, 2 is Line, 3 is Triangle
+
+TYPE
+DATA

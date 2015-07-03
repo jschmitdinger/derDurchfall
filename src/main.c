@@ -413,34 +413,82 @@ int main(void)
                 	}
                     break;
                 case STAGE_IN_GAME:
+                	// Enters pause menu
                 	if(key[KEY_P]){
                 		setTimer(&menuControl.time, 20);
                 		game.stage = STAGE_PAUSE_MENU;
                 	}
+
+                	// Moves player up
                 	if(key[KEY_W] && player.timeMovement.flag)
                 		phAddAc(&player.acY, player.power, -1, player.weight, 1, NORMAL_SPEED);
+
+                	// Moves player down
                 	if(key[KEY_S] && player.timeMovement.flag)
                 		phAddAc(&player.acY, player.power, 1, player.weight, 1, NORMAL_SPEED);
+
+                	// Moves player left
                 	if(key[KEY_A] && player.timeMovement.flag)
                 		phAddAc(&player.acX, player.power, -1, player.weight, 1, NORMAL_SPEED);
+
+                	// Moves player right
                 	if(key[KEY_D] && player.timeMovement.flag)
                 		phAddAc(&player.acX, player.power, 1, player.weight, 1, NORMAL_SPEED);
+
+                	// Brakes player vertically
                 	if((!key[KEY_W]) && (!key[KEY_S]))
                 		phNormalize(&player.acY, player.power/2, player.weight);
+
+                	// Brakes player horizontally
                 	if((!key[KEY_A]) && (!key[KEY_D]))
                 		phNormalize(&player.acX, player.power/2, player.weight);
+
+                	// Triggers melee attack for player
                 	if((mouse.btn[MOUSE_RIGHT]) && (player.timeAttack.flag)){
                 		atkTackle(&player, mouse.coordX + view.coordX, mouse.coordY + view.coordY);
-                		player.timeAttack.time = 100;
-                		player.timeMovement.time = 10;
+                		setTimer(&player.timeMovement.time, player.delay[ATCK_MOOVE]);
+                		setTimer(&player.timeAttack.time, player.delay[ATCK_MELEE]);
                 	}
+
+                	// Triggers projectile attack for player
                 	if((mouse.btn[MOUSE_LEFT]) && (player.timeAttack.flag)){
                 		atkShoot(&player, mouse.coordX + view.coordX, mouse.coordY + view.coordY);
+<<<<<<< HEAD
                 		player.timeAttack.time = 5;
                 	}
 
                     for(i = 0; i < (map.totalEnemies-1); i++)
                     {
+=======
+                		setTimer(&player.timeAttack.time, player.delay[ATCK_SHOOT]);
+                	}
+
+                	// Triggers projectile attack for enemies
+                	for(i=0; i<map.totalEnemies; i++){
+                    	if((map.enemies[i].timeAttack.flag) && (map.enemies[i].enable)){
+                    		map.enemies[i].distanceToPlayer = DISTANCE(player.coordX, player.coordY, map.enemies[i].coordX, map.enemies[i].coordY);
+                    		if(((map.enemies[i].distanceToPlayer > (-CONST_DISTANCE_FAR)) && (map.enemies[i].distanceToPlayer < (CONST_DISTANCE_FAR))) ||
+                    				((map.enemies[i].distanceToPlayer < (-CONST_DISTANCE_FAR)) && (map.enemies[i].distanceToPlayer > (CONST_DISTANCE_FAR)))){
+                    			atkShoot(&map.enemies[i], player.coordX, player.coordY);
+								setTimer(&map.enemies[i].timeAttack.time, map.enemies[i].delay[ATCK_SHOOT]);
+                    		}
+                    	}
+                	}
+
+                	// Triggers melee attack for enemies
+                	for(i=0; i<map.totalEnemies; i++){
+                    	if((map.enemies[i].timeAttack.flag) && (map.enemies[i].enable)){
+                    		map.enemies[i].distanceToPlayer = DISTANCE(player.coordX, player.coordY, map.enemies[i].coordX, map.enemies[i].coordY);
+                    		if(((map.enemies[i].distanceToPlayer > (-CONST_DISTANCE)) && (map.enemies[i].distanceToPlayer < (CONST_DISTANCE))) ||
+                    				((map.enemies[i].distanceToPlayer < (-CONST_DISTANCE)) && (map.enemies[i].distanceToPlayer > (CONST_DISTANCE)))){
+								atkTackle(&map.enemies[i], player.coordX, player.coordY);
+								setTimer(&map.enemies[i].timeAttack.time, map.enemies[i].delay[ATCK_MELEE]);
+                    		}
+                    	}
+                	}
+
+                    for(i = 0; i < (map.totalEnemies); i++){
+>>>>>>> e8647e453fc6e7322272e386f57fd531c29216d5
                         if(map.enemies[i].enable == 1)
                         {
                             phMoveEnemy(&map.enemies[i], map.circles, map.totalCircles);
@@ -449,7 +497,10 @@ int main(void)
                             phColideBallRec(&map.enemies[i], &limits);
 
                             phColideShotBall(&player,&map.enemies[i]);
+                            phColideShotBall(&map.enemies[i],&player);
 
+                            for(j=0; j<map.totalCircles; j++)
+                                vitalDemage(&map.circles[j], &map.enemies[i]);
 
                             for(j = 0; j <i; j++)
                             {
@@ -467,42 +518,65 @@ int main(void)
                         }
                     }
 
-                    if((send_enemy == 50)&&(number_enemy<=map.totalEnemies))
-                    {
+                    if((send_enemy == 50)&&(number_enemy<=map.totalEnemies)){
                         map.enemies[number_enemy].enable = 1;
                         number_enemy++;
 
                         send_enemy = 0;
                     }
+
                     if(number_enemy<=map.totalEnemies)
                         send_enemy++;
 
+                    // Colides player with enemies
                 	phColideBallRec(&player, &limits);
 
-                	for(i=0; i<map.totalSquares; i++)
-                    {
+                	// Colides player and shots from player with rectangles
+                	for(i=0; i<map.totalSquares; i++){
                 		phColideBallRec(&player, &map.squares[i]);
-                		phColideShotRec(&player, &map.squares[i]);
+                		phColideShotRec(&player, &limits);
+                		for(j=0; j<map.totalEnemies; j++)
+                			phColideShotRec(&map.enemies[j], &map.squares[i]);
                     }
 
-                    if(enemys_dead == map.totalEnemies)
-                    {
+                    if(enemys_dead == map.totalEnemies){
                         number_enemy = 0;
-                    enemys_dead = 0;
+                        enemys_dead = 0;
                         for(i=0; i<map.totalEnemies; i++)
                             initEnemy(&map.enemies[i], &map, TYPE_NORMAL,map.width,map.height);
                     }
 
-                	phMoveShots(player.shots);
+                	// Move players shots
+                    phMoveShots(player.shots);
+
+                	// Move enemies shots
+                	for(i=0; i<map.totalEnemies; i++)
+                		phMoveShots(map.enemies[i].shots);
+
+                	// Move player
                 	phMoveObject(&player);
 
+                	// Move view area
                 	moveViewPoint(&player, &view);
+
+                	if(player.life <= 0)
+                		game.stage = STAGE_GAME_OVER;
+                	for(i=0; i<map.totalCircles; i++){
+                		if(map.circles[i].life <= 0)
+                			game.stage = STAGE_GAME_OVER;
+                	}
 
                     break;
                 case STAGE_PAUSE_MENU:
                 	if(key[KEY_BACKSPACE]){
                 		setTimer(&menuControl.time, 20);
                 		game.stage = STAGE_IN_GAME;
+                	}
+                	break;
+                case STAGE_GAME_OVER:
+                	if(key[KEY_ENTER]){
+                		setTimer(&menuControl.time, 20);
+                		game.stage = STAGE_MAIN_MENU;
                 	}
                 	break;
                 default:
@@ -513,6 +587,11 @@ int main(void)
             checkTimer(&menuControl);
             checkTimer(&player.timeAttack);
             checkTimer(&player.timeMovement);
+            checkTimer(&player.timeElement);
+            for(i=0; i<map.totalEnemies; i++)
+            	checkTimer(&map.enemies[i].timeAttack);
+            for(i=0; i<map.totalCircles; i++)
+                checkTimer(&map.circles[i].timeDemage);
         }
 
         // GAME ART / ARTE DO JOGO --------------------------------------------------------------- //
@@ -528,53 +607,96 @@ int main(void)
                 			settings.displayY/2, ALLEGRO_ALIGN_CENTRE, "MAIN MENU");
                     break;
                 case STAGE_IN_GAME:
+
+                	// Estagio in-game (DEBUG)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,
                 			settings.displayY*0.1, ALLEGRO_ALIGN_CENTRE, "IN GAME");
+
+                	// Coordenada X na tela (DEBUG)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.1,
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "coordX: %.2f", player.coordX - view.coordX);
+
+                	// Coordenada X total (DEBUG)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.1,
                 			settings.displayY*0.95, ALLEGRO_ALIGN_CENTRE, "coordX: %.2f", player.coordX);
+
+                	// Coordenada Y na tela (DEBUG)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.2,
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "coordY: %.2f", player.coordY - view.coordY);
+
+                	// Coordenada Y total (DEBUG)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.2,
                 			settings.displayY*0.95, ALLEGRO_ALIGN_CENTRE, "coordY: %.2f", player.coordY);
+
+                	// Aceleracao X jogador (DEBUG)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.3,
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "acX: %.2f", player.acX);
+
+                	// Aceleracao Y do jogador (DEBUG)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.3,
                 			settings.displayY*0.95, ALLEGRO_ALIGN_CENTRE, "acY: %.2f", player.acY);
+
+                	// Angulo de movimento do jogador (DEBUG)
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.4,
                 			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "angle: %.2f", player.dAngle);
 
-                    for(i=0; i<map.totalCircles; i++)
-                    {
-                        al_draw_filled_circle(map.circles[i].coordX - view.coordX, map.circles[i].coordY - view.coordY, map.circles[i].radius, al_map_rgb(255, 0, 0));
-                    }
+                	// Vida do jogador
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.4,
+                			settings.displayY*0.95, ALLEGRO_ALIGN_CENTRE, "hp: %d", player.life);
 
+                	// Vida do vital 0
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX*0.5,
+                			settings.displayY*0.9, ALLEGRO_ALIGN_CENTRE, "vital0: %d", map.circles[0].life);
+
+                	// Areas Vitais
+                    for(i=0; i<map.totalCircles; i++)
+
+                        al_draw_filled_circle(map.circles[i].coordX - view.coordX, map.circles[i].coordY - view.coordY, map.circles[i].radius, al_map_rgb(255, 0, 0));
+
+                    // Jogador
                     al_draw_filled_circle(player.coordX - view.coordX, player.coordY - view.coordY, player.radius, al_map_rgb(255, 255, 255));
 
+                    // Inimigos
+                    for(i = 0; i < map.totalEnemies; i++){
+                        if(map.enemies[i].enable == 1)
+                            al_draw_filled_circle(map.enemies[i].coordX - view.coordX, map.enemies[i].coordY - view.coordY, map.enemies[i].radius, al_map_rgb(0, 255, 255));
+                    }
+
+                    // Tiros do jogador
                     for(i=0; i<TOTAL_SHOTS; i++){
                     	if(player.shots[i].enable)
                     		al_draw_filled_circle(player.shots[i].coordX - view.coordX, player.shots[i].coordY - view.coordY, 5, al_map_rgb(255, 255, 255));
                     }
 
-                    for(i = 0; i < map.totalEnemies; i++)
-                    {
-                        if(map.enemies[i].enable == 1)
-                            al_draw_filled_circle(map.enemies[i].coordX - view.coordX, map.enemies[i].coordY - view.coordY, map.enemies[i].radius, al_map_rgb(0, 255, 255));
+                    // Tiros dos inimigos
+                    for(i=0; i<map.totalEnemies; i++){
+						for(j=0; j<TOTAL_SHOTS; j++){
+							if(map.enemies[i].shots[j].enable)
+								al_draw_filled_circle(map.enemies[i].shots[j].coordX - view.coordX, map.enemies[i].shots[j].coordY - view.coordY, 5, al_map_rgb(255, 255, 255));
+						}
                     }
 
+                    // Retangulos do jogo
                     for(i=0; i<map.totalSquares; i++){
                     	al_draw_rectangle(map.squares[i].coordX1 - view.coordX, map.squares[i].coordY1 - view.coordY, map.squares[i].coordX2 - view.coordX,
                     			map.squares[i].coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
                 	}
 
+                    // Limites do mapa
                 	al_draw_rectangle(limits.coordX1 - view.coordX, limits.coordY1 - view.coordY,
                 			limits.coordX2 - view.coordX, limits.coordY2 - view.coordY, al_map_rgb(255, 255, 255), 5);
+
+                	// Cursor
                     al_draw_filled_circle(mouse.coordX, mouse.coordY, 5, al_map_rgb(255, 255, 255));
+
                     break;
                 case STAGE_PAUSE_MENU:
                 	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,
                 			settings.displayY/2, ALLEGRO_ALIGN_CENTRE, "PAUSED");
+                	break;
+                case STAGE_GAME_OVER:
+                	al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), settings.displayX/2,
+                			settings.displayY/2, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
                 	break;
                 default:
                     return AL_STATE_ERROR;

@@ -60,6 +60,9 @@ typedef struct avatar{
 	int stepCounter;
 	int objective;
 	int shotCount;
+	int delay[3];
+	float distanceToPlayer;
+	timeControl timeElement;
 	timeControl timeMovement;
 	timeControl timeAttack;
 	projectile shots[TOTAL_SHOTS];
@@ -96,6 +99,8 @@ typedef struct circle{
 	int *stepX;
 	int *stepY;
 	int stepCounter;
+	int life;
+	timeControl timeDemage;
 } circle;
 
 typedef struct line{

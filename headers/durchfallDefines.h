@@ -15,6 +15,8 @@
 #define SABABA 							0
 #define MUITOS                          10000
 
+// MACRO FUNCTIONS ================================================================================ //
+#define DISTANCE(x1,y1,x2,y2)			sqrt(pow((x1 - x2),2)+(pow((y1 - y2),2)))
 
 // SYSTEM MACROS ================================================================================== //
 #define GAME_SPEED						120
@@ -90,13 +92,24 @@
 #define STAGE_MAIN_MENU                 1
 #define STAGE_IN_GAME                   2
 #define STAGE_PAUSE_MENU				3
+#define STAGE_GAME_OVER					4
 
 // PLAYER DEFINITIONS ============================================================================ //
 #define TYPE_NORMAL						0
+#define ATCK_MELEE						0
+#define ATCK_SHOOT						1
+#define ATCK_MOOVE						2
 #define NORMAL_SPEED					5
 #define TACKLE_SPEED					10
-#define TOTAL_SHOTS						300
+#define TOTAL_SHOTS						100
 #define BULLET_SPEED					20
+
+#define ELEMENT_UN						0
+#define ELEMENT_NORMAL					1
+#define DAMEGE_CONST					10
+
+#define CONST_DISTANCE					200
+#define CONST_DISTANCE_FAR				500
 
 // ENEMYS DEFINITIONS ============================================================================ //
 #define PHASE1_ENEMYS                   2
