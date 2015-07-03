@@ -21,6 +21,7 @@ void fpsControl(graphicSettings *settings);
 // TIME CONTROL FUNCTIONS ========================================================================= //
 void setTimer(int *timer, int time);
 void checkTimer(timeControl *timer);
+void controlAnimation(aniControl *ani, int speed, int limit);
 
 // PHYSICS FUNCTIONS ============================================================================== //
 void phAddAc(float *ac, float power, char dir, float mass, float trig, float limit);
@@ -30,9 +31,9 @@ void phMoveShots(projectile shots[]);
 void phNormalize(float *ac, float power, float mass);
 void phColideBallRec(avatar *object, square *block);
 void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, float lineY1);
-void phColide2Ball(avatar *object1, avatar *object2);
+void phColide2Ball(avatar *object1, avatar *object2, ALLEGRO_SAMPLE *sound);
 void phColideShotRec(avatar *object, square *block);
-void phColideShotBall(avatar *shooter, avatar *target);
+void phColideShotBall(avatar *shooter, avatar *target, ALLEGRO_SAMPLE *sound);
 
 // ATTACK FUNCTIONS =============================================================================== //
 void atkTackle(avatar *agent, int targetX, int targetY);
@@ -41,10 +42,12 @@ void vitalDemage(circle *vital, avatar *enemy);
 
 // MAP FUNCTIONS ================================================================================== //
 void initMap(gameMap *map, char filePath[]);
+void deinitMap(gameMap *map);
 void moveViewPoint(avatar *reference, mapView *view);
 
 // AVATAR FUNCTIONS =============================================================================== //
 int initPlayer(avatar *player, char type, int arenaWidth, int arenaHeight);
 int initEnemy(avatar *player, gameMap *map, char type, int arenaWidth, int arenaHeight);
+void setLookDirection(avatar *agent, int targetX, int targetY);
 
 #endif /* DURCHFALLSTRUCTS_H_ */

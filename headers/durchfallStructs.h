@@ -12,6 +12,57 @@
 #define DURCHFALLSTRUCTS_H_
 
 #include <stdio.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
+
+typedef struct logo{
+	float acX;
+	float acY;
+	float coordX;
+	float coordY;
+} logo;
+
+typedef struct sounds{
+	ALLEGRO_SAMPLE_ID *bkg;
+	ALLEGRO_SAMPLE *menuBackground;
+	ALLEGRO_SAMPLE *menuSwitch;
+	ALLEGRO_SAMPLE *menuSelect;
+	ALLEGRO_SAMPLE *type;
+	ALLEGRO_SAMPLE *gameBackground;
+	ALLEGRO_SAMPLE *shotp;
+	ALLEGRO_SAMPLE *shote;
+	ALLEGRO_SAMPLE *damagep;
+	ALLEGRO_SAMPLE *firee;
+	ALLEGRO_SAMPLE *firep;
+	ALLEGRO_SAMPLE *hit;
+} sounds;
+
+typedef struct spritsCrianca{
+	ALLEGRO_BITMAP *logos[2];
+	ALLEGRO_BITMAP *menuItems[5];
+	ALLEGRO_BITMAP *projectile1;
+	ALLEGRO_BITMAP *projectile2;
+	ALLEGRO_BITMAP *spriteHead;
+	ALLEGRO_BITMAP *spriteBody;
+	ALLEGRO_BITMAP *spriteMelee1;
+	ALLEGRO_BITMAP *spriteMelee2;
+	ALLEGRO_BITMAP *circle;
+	ALLEGRO_BITMAP *bg;
+	ALLEGRO_BITMAP *block;
+	ALLEGRO_BITMAP *enemy;
+	ALLEGRO_BITMAP *title;
+	ALLEGRO_BITMAP *caio;
+	ALLEGRO_BITMAP *johann;
+} spritsCrianca;
+
+typedef struct menuOptionControl{
+	int local;
+	int distancia;
+	int first;
+	int options;
+} menuOptionControl;
 
 typedef struct graphicSettings{
 	FILE *fp;
@@ -25,6 +76,12 @@ typedef struct graphicSettings{
 typedef struct gameStatus{
 	char quit;
 	char stage;
+	float bgxcount;
+	float bgycount;
+	char invert;
+	float acX;
+	float acY;
+	int menuChangeTimer;
 } gameStatus;
 
 typedef struct cursor{
@@ -38,15 +95,22 @@ typedef struct timeControl{
 	int time;
 } timeControl;
 
+typedef struct aniControl{
+	int step;
+	int time;
+} aniControl;
+
 typedef struct projectile{
 	int coordX;
 	int coordY;
 	int acX;
 	int acY;
 	int enable;
+	aniControl aniShots;
 } projectile;
 
 typedef struct avatar{
+	int score;
 	float coordX;
 	float coordY;
 	float radius;
@@ -55,16 +119,22 @@ typedef struct avatar{
 	float power;
 	float weight;
 	float dAngle;
-	int life;
+	float life;
 	char enable;
 	int stepCounter;
 	int objective;
 	int shotCount;
 	int delay[3];
 	float distanceToPlayer;
+	int posHead;
 	timeControl timeElement;
 	timeControl timeMovement;
 	timeControl timeAttack;
+	timeControl cantouch;
+	timeControl timeFlame;
+	timeControl timeExplosion;
+	aniControl aniBody;
+	aniControl aniMelee;
 	projectile shots[TOTAL_SHOTS];
 } avatar;
 
@@ -99,7 +169,7 @@ typedef struct circle{
 	int *stepX;
 	int *stepY;
 	int stepCounter;
-	int life;
+	float life;
 	timeControl timeDemage;
 } circle;
 
@@ -136,5 +206,10 @@ typedef struct mapView{
 	float coordX;
 	float coordY;
 } mapView;
+
+typedef struct profile{
+    char name[10];
+    int score;
+}profile;
 
 #endif /* DURCHFALLSTRUCTS_H_ */

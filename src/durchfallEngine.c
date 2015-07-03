@@ -46,6 +46,21 @@ void fpsControl(graphicSettings *settings)
 
 	return;
 }
+void controlAnimation(aniControl *ani, int speed, int limit)
+{
+	//
+	if(ani->time > 0)
+		ani->time--;
+	else{
+		ani->time = speed;
+		ani->step++;
+	}
+
+	if(ani->step >= limit)
+		ani->step = 0;
+
+	return;
+}
 
 // TIME CONTROL FUNCTIONS ========================================================================= //
 void setTimer(int *timer, int time)
@@ -310,7 +325,7 @@ void phColideBallLine(avatar *object, float lineX0, float lineY0, float lineX1, 
 
 	return;
 }
-void phColide2Ball(avatar *object1, avatar *object2)
+void phColide2Ball(avatar *object1, avatar *object2, ALLEGRO_SAMPLE *sound)
 {
     float distance;
     float auxX;
@@ -363,10 +378,18 @@ void phColide2Ball(avatar *object1, avatar *object2)
         if(!object1->timeElement.flag){
         	object2->life -= 2*DAMEGE_CONST;
         	object1->timeElement.time = 0;
+        	setTimer(&object2->timeExplosion.time, 25);
+            if(object2->life <= 0)
+            	object1->score+=10;
+            al_play_sample(sound, 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_ONCE,NULL);
         }
         if(!object2->timeElement.flag){
         	object1->life -= 2*DAMEGE_CONST;
         	object2->timeElement.time = 0;
+        	setTimer(&object1->timeExplosion.time, 25);
+            if(object1->life <= 0)
+            	object2->score+=10;
+            al_play_sample(sound, 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_ONCE,NULL);
         }
     }
     return;
@@ -376,18 +399,10 @@ void phColideShotRec(avatar *object, square *block)
 {
     int i;
 
-<<<<<<< HEAD
-    for(i = 0; i<TOTAL_SHOTS; i++)
-    {
-        if((object->shots[i].coordX > block->coordX1)&&(object->shots[i].coordX < block->coordX2)&&(object->shots[i].coordY > block->coordY1)&&(object->shots[i].coordY < block->coordY2)&&(object->shots[i].enable == 1))
-        {
-            object->shots[i].enable = 0;
-=======
     for(i = 0; i<TOTAL_SHOTS; i++){
         if((object->shots[i].coordX > block->coordX1)&&(object->shots[i].coordX < block->coordX2)&&(object->shots[i].coordY > block->coordY1)&&(object->shots[i].coordY < block->coordY2)&&(object->shots[i].enable == 1)){
             if(((object->shots[i].coordX-object->shots[i].acX > block->coordX2)||(object->shots[i].coordX-object->shots[i].acX < block->coordX1))||((object->shots[i].coordY-object->shots[i].acY > block->coordY2)||(object->shots[i].coordY-object->shots[i].acY < block->coordY1)))
                 object->shots[i].enable = 0;
->>>>>>> e8647e453fc6e7322272e386f57fd531c29216d5
         }
         else{
             if(((object->shots[i].coordX-object->shots[i].acX < block->coordX2)&&(object->shots[i].coordX-object->shots[i].acX > block->coordX1))&&((object->shots[i].coordY-object->shots[i].acY < block->coordY2)&&(object->shots[i].coordY-object->shots[i].acY > block->coordY1)))
@@ -396,7 +411,7 @@ void phColideShotRec(avatar *object, square *block)
 
     }
 }
-void phColideShotBall(avatar *shooter, avatar *target)
+void phColideShotBall(avatar *shooter, avatar *target, ALLEGRO_SAMPLE *sound)
 {
     float distance;
     int i;
@@ -409,6 +424,10 @@ void phColideShotBall(avatar *shooter, avatar *target)
         {
             shooter->shots[i].enable = 0;
             target->life-=10;
+            al_play_sample(sound, 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_ONCE,NULL);
+            setTimer(&target->timeExplosion.time, 25);
+            if(target->life <= 0)
+            	shooter->score+=10;
         }
     }
 }
@@ -445,6 +464,9 @@ void atkTackle(avatar *agent, int targetX, int targetY)
 	phAddAc(&agent->acX, TACKLE_SPEED*trigX, 1, agent->weight, 1, TACKLE_SPEED);
 	phAddAc(&agent->acY, TACKLE_SPEED*trigY, 1, agent->weight, 1, TACKLE_SPEED);
 
+	setTimer(&agent->timeFlame.time, agent->delay[ATCK_MELEE]);
+	setTimer(&agent->cantouch.time, agent->delay[ATCK_MELEE]);
+
 	agent->timeElement.time = agent->delay[ATCK_MELEE];
 
 	return;
@@ -475,35 +497,21 @@ void atkShoot(avatar *agent, int targetX, int targetY)
 			trigY *= (-1);
 	}
 
-<<<<<<< HEAD
-	if(agent->shotCount >= 300){
-		agent->shotCount = 0;
-		printf("\nCaiu aqui, shot count %d %d", agent->shotCount , agent->shots[agent->shotCount].enable);
-=======
 	if(agent->shotCount >= TOTAL_SHOTS){
 		agent->shotCount = 0;
 		fflush(stdout);
->>>>>>> e8647e453fc6e7322272e386f57fd531c29216d5
 	}
 
 	if(!agent->shots[agent->shotCount].enable){
 
-<<<<<<< HEAD
-		printf("\n%d\t%d", agent->shotCount, agent->shots[agent->shotCount].enable);
-
-=======
->>>>>>> e8647e453fc6e7322272e386f57fd531c29216d5
 		agent->shots[agent->shotCount].coordX = agent->coordX;
 		agent->shots[agent->shotCount].coordY = agent->coordY;
 		agent->shots[agent->shotCount].acX = BULLET_SPEED*trigX;
 		agent->shots[agent->shotCount].acY = BULLET_SPEED*trigY;
 		agent->shots[agent->shotCount].enable = 1;
+		agent->shots[agent->shotCount].aniShots.step = 0;
+		agent->shots[agent->shotCount].aniShots.time = 0;
 
-<<<<<<< HEAD
-		printf("\t%d", agent->shots[agent->shotCount].enable);
-
-=======
->>>>>>> e8647e453fc6e7322272e386f57fd531c29216d5
 		agent->shotCount++;
 	}
 
@@ -615,6 +623,17 @@ void initMap(gameMap *map, char filePath[])
 
 	return;
 }
+void deinitMap(gameMap *map)
+{
+	//
+	free(map->circles);
+	free(map->enemies);
+	free(map->lines);
+	free(map->squares);
+	free(map->triangles);
+
+	return;
+}
 void moveViewPoint(avatar *reference, mapView *view)
 {
 	if(((reference->coordX - view->coordX) <= (view->rangeX * 0.35)) && (view->coordX > 0))
@@ -639,14 +658,16 @@ int initPlayer(avatar *player, char type, int arenaWidth, int arenaHeight)
 	player->coordX = arenaWidth/2;
 	player->coordY = arenaHeight/2;
 	player->shotCount = 0;
-<<<<<<< HEAD
-=======
 
 	player->delay[ATCK_MELEE] = 100;
-	player->delay[ATCK_SHOOT] = 20;
+	player->delay[ATCK_SHOOT] = 10;
 	player->delay[ATCK_MOOVE] = 10;
 	player->timeElement.flag = ELEMENT_UN;
->>>>>>> e8647e453fc6e7322272e386f57fd531c29216d5
+
+	player->posHead = 0;
+
+	player->aniBody.step = 0;
+	player->aniBody.time = 0;
 
 	switch(type){
 	case TYPE_NORMAL:
@@ -663,6 +684,20 @@ int initPlayer(avatar *player, char type, int arenaWidth, int arenaHeight)
 	player->timeAttack.time = 0;
 	player->timeMovement.flag = false;
 	player->timeMovement.time = 0;
+	player->timeFlame.flag = false;
+	player->timeFlame.time = 0;
+	player->timeExplosion.flag = false;
+	player->timeExplosion.time = 0;
+	player->cantouch.flag= false;
+	player->cantouch.time= 0;
+
+	player->score = 0;
+
+	player->aniBody.step = 0;
+	player->aniBody.time = 0;
+	player->aniMelee.step = 0;
+	player->aniMelee.time = 0;
+
 	player->life = 100;
 
 	for(i=0; i<TOTAL_SHOTS; i++){
@@ -682,8 +717,6 @@ int initEnemy(avatar *player, gameMap *map, char type, int arenaWidth, int arena
 
 	player->acX = 0;
 	player->acY = 0;
-	player->coordX = 50;
-	player->coordY = 50;
 	player->enable = 0;
 	player->life = 20;
 	player->shotCount = 0;
@@ -707,24 +740,73 @@ int initEnemy(avatar *player, gameMap *map, char type, int arenaWidth, int arena
 
 
 	switch(type){
-	case ENEMY_NORMAL:	for(i=0; i<TOTAL_SHOTS; i++){
+	case ENEMY_NORMAL:
+	    for(i=0; i<TOTAL_SHOTS; i++){
 		player->shots[i].enable = 0;
 		player->shots[i].acX = 0;
 		player->shots[i].acY = 0;
 		player->shots[i].coordX = player->coordX;
 		player->shots[i].coordY = player->coordY;
-	}
-
+        player->coordX = map->width/2 - 50;
+        player->coordY = 100;
 		player->radius = 15;
 		player->power = 0.2;
 		player->weight = 15/player->radius;
-		break;
+	}
+	break;
+	case ENEMY_PHASE2:
+	    for(i=0; i<TOTAL_SHOTS; i++){
+		player->shots[i].enable = 0;
+		player->shots[i].acX = 0;
+		player->shots[i].acY = 0;
+		player->shots[i].coordX = player->coordX;
+		player->shots[i].coordY = player->coordY;
+        player->coordX = map->width/2 + 50;
+        player->coordY = 100;
+		player->radius = 15;
+		player->power = 0.2;
+		player->weight = 15/player->radius;
+	}
+	break;
+	case ENEMY_PHASE3:
+	    for(i=0; i<TOTAL_SHOTS; i++){
+		player->shots[i].enable = 0;
+		player->shots[i].acX = 0;
+		player->shots[i].acY = 0;
+		player->shots[i].coordX = player->coordX;
+		player->shots[i].coordY = player->coordY;
+        player->coordX = map->width - 100;
+        player->coordY = map->height/2 + 100;
+		player->radius = 15;
+		player->power = 0.2;
+		player->weight = 15/player->radius;
+	}
+	break;
+	case ENEMY_PHASE4:
+	    for(i=0; i<TOTAL_SHOTS; i++){
+		player->shots[i].enable = 0;
+		player->shots[i].acX = 0;
+		player->shots[i].acY = 0;
+		player->shots[i].coordX = player->coordX;
+		player->shots[i].coordY = player->coordY;
+        player->coordX = 100;
+        player->coordY = map->height/2 + 100;
+		player->radius = 15;
+		player->power = 0.2;
+		player->weight = 15/player->radius;
+	}
+	break;
 	default:	for(i=0; i<TOTAL_SHOTS; i++){
 		player->shots[i].enable = 0;
 		player->shots[i].acX = 0;
 		player->shots[i].acY = 0;
 		player->shots[i].coordX = player->coordX;
 		player->shots[i].coordY = player->coordY;
+        player->coordX = map->width/3*2;
+        player->coordY = 50;
+		player->radius = 15;
+		player->power = 0.2;
+		player->weight = 15/player->radius;
 	}
 	for(i=0; i<TOTAL_SHOTS; i++){
 		player->shots[i].enable = 0;
@@ -771,4 +853,43 @@ int initEnemy(avatar *player, gameMap *map, char type, int arenaWidth, int arena
     }
 
 	return 1;
+}
+void setLookDirection(avatar *agent, int targetX, int targetY)
+{
+	float angle;
+	float trigX, trigY;
+
+	angle = atan((targetY - agent->coordY)/(targetX - agent->coordX)) * (-1);
+
+	trigX = cos(angle);
+	trigY = sin(angle);
+
+	if(targetX > agent->coordX){
+		if(trigX < 0)
+			trigX *= (-1);
+	} else if(targetX < agent->coordX){
+		if(trigX > 0)
+			trigX *= (-1);
+	}
+	if(targetY > agent->coordY){
+		if(trigY < 0)
+			trigY *= (-1);
+	} else if(targetY < agent->coordY){
+		if(trigY > 0)
+			trigY *= (-1);
+	}
+
+	if(sqrt(pow(trigX, 2)) >= sqrt(pow(trigY, 2))){
+		if(trigX > 0)
+			agent->posHead = 1;
+		else
+			agent->posHead = 3;
+	} else{
+		if(trigY > 0)
+			agent->posHead = 0;
+		else
+			agent->posHead = 2;
+	}
+
+	return;
 }

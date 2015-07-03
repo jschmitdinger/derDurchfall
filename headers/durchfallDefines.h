@@ -78,14 +78,28 @@
 #define MOUSE_RIGHT						1
 #define MOUSE_MIDDLE					2
 
+// MENU ITEMS ===================================================================================== //
+#define TOTAL_ITEMS						5
+#define START							0
+#define MULTI							1
+#define LEADER							2
+#define SETTINGS						3
+#define QUIT							4
+
+#define LOGO_IFSC						0
+#define LOGO_ALLEGRO					1
+
 // FONT DEFINITIONS =============================================================================== //
 #define FONT_NAME                       1
-#define FONT_SIZES                      2
+#define FONT_SIZES                      5
 #define FONT_ARIAL                      0
 #define FONT_CENTAUR                    1
 #define FONT_STENCIL                    2
 #define FONT_16                         0
 #define FONT_24                         1
+#define FONT_32							2
+#define FONT_34							3
+#define FONT_26                         4
 
 // GAME STAGES =================================================================================== //
 #define STAGE_INTRO_SCREEN              0
@@ -93,6 +107,9 @@
 #define STAGE_IN_GAME                   2
 #define STAGE_PAUSE_MENU				3
 #define STAGE_GAME_OVER					4
+#define STAGE_SCORE_SCREEN				5
+#define STAGE_SETTINGS_SCREEN			6
+#define STAGE_PLAYER_SCREEN				7
 
 // PLAYER DEFINITIONS ============================================================================ //
 #define TYPE_NORMAL						0
@@ -102,7 +119,7 @@
 #define NORMAL_SPEED					5
 #define TACKLE_SPEED					10
 #define TOTAL_SHOTS						100
-#define BULLET_SPEED					20
+#define BULLET_SPEED					5
 
 #define ELEMENT_UN						0
 #define ELEMENT_NORMAL					1
@@ -112,8 +129,11 @@
 #define CONST_DISTANCE_FAR				500
 
 // ENEMYS DEFINITIONS ============================================================================ //
-#define PHASE1_ENEMYS                   2
+#define PHASE1_ENEMYS                   4
 #define ENEMY_NORMAL                    0
+#define ENEMY_PHASE2                    1
+#define ENEMY_PHASE3                    2
+#define ENEMY_PHASE4                    3
 #define ENEMY_SPEED                     3
 
 // MAP DEFINITIONS =============================================================================== //
