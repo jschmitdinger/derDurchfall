@@ -254,7 +254,7 @@ int main(void)
     al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), 5, 105, ALLEGRO_ALIGN_LEFT, "Loading bitmaps...");
     al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), 5, 120, ALLEGRO_ALIGN_LEFT, "   Loading background...");
     al_flip_display();
-    sprites.bg = al_load_bitmap("images/map/bg.jpg");
+    sprites.bg = al_load_bitmap("images/map/bg3200.jpg");
     sprites.title = al_load_bitmap("images/menu/rsz_game_title.png");
     al_convert_mask_to_alpha(sprites.title, al_map_rgb(255, 0, 255));
     al_draw_textf(font[FONT_ARIAL][FONT_16], al_map_rgb(255,255,255), 5, 120, ALLEGRO_ALIGN_LEFT, "   Loading background... Done.");
