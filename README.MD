@@ -21,3 +21,9 @@ INFORMAÇÕES TÉCNICAS DO JOGO
 -	Progressão por "ondas" de inimigos;
 -	Diferentes tipos de inimigos, com diferentes maneiras de serem eliminados.
 
+Para compilar no Linux:
+```
+gcc -g -Wall -Iheaders src/main.c src/durchfallEngine.c -o durchfall  -lallegro -lallegro_font -lallegro_audio -lallegro_primitives -lallegro_ttf -lallegro_image -lallegro_acodec
+```
+
+
